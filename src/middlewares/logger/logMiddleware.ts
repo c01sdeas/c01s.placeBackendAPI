@@ -7,7 +7,7 @@ const logMiddleware = (req:Request, res:Response, next:NextFunction) => {
 
   // logger.info(`Request: ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}`);
 
-  const reqData = (`Request: ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}`);
+  const reqData = (`Request: ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}, - User: ${req.session.username}`);
 
   let resData = undefined;
 

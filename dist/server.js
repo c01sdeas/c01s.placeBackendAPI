@@ -5,7 +5,7 @@ import fileUpload from 'express-fileupload';
 // import path from 'path';
 import logMiddleware from './src/middlewares/logger/logMiddleware.js';
 // const productRoutes = require ('./src/domains/product/todoApp/index');
-import productRoutes from './src/domains/product/todoApp/index.js';
+import blogAppRoutes from './src/domains/product/blogApp/index.js';
 import authRoutes from './src/domains/user/authentication/authIndex.js';
 // const userCrudRoutes = require('./src/domains/user/usercrud/index.js');
 import userCrudRoutes from './src/domains/user/usercrud/userIndex.js';
@@ -22,7 +22,7 @@ app.use(session({
         secure: false,
         httpOnly: true,
         sameSite: 'lax'
-    }
+    },
 }));
 // import './src/types/express-session'
 import flash from 'connect-flash';
@@ -30,8 +30,9 @@ import db from './src/config/db.js';
 db();
 import cors from 'cors';
 app.use(cors({
-    origin: 'http://localhost:4200',
-    credentials: true // Credentials gönderimine izin ver
+    // origin: 'http://localhost:4200',
+    origin: true,
+    credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -54,5 +55,5 @@ app.use(express.static('public'));
 app.use('/t-app/auth', authCrudMiddleware(['visitor']), authRoutes);
 app.use('/t-app/user', [authCrudMiddleware([]), userCrudMiddleware(['user'])], userCrudRoutes);
 app.use('/t-app/admin', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], adminCrudRoutes);
-app.use('/t-app/app', [authCrudMiddleware(['visitor'])], productRoutes);
+app.use('/t-app/app/blog', [authCrudMiddleware(['visitor'])], blogAppRoutes);
 export default app;

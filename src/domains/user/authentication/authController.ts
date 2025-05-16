@@ -102,11 +102,26 @@ const signInPost = async (req:Request,res:Response,next:NextFunction) : Promise<
             return res.status(userAuthLogData.statusCode).json(userAuthLogData);
         } else(userAuthLogData.success==false)
             return res.status(userAuthLogData.statusCode).json(userAuthLogData);
-
-        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
         
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
+    }
+}
+
+const signOutPost = async (req:Request, res:Response, next:NextFunction):Promise<any> => {
+    try {
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Session destroy error:', err);
+                return res.status(500).send({ message: 'Logout failed' });
+            }
+            res.clearCookie('connect.sid');
+            return res.status(200).send({ message: 'Logged out' });
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 }
 
@@ -209,6 +224,7 @@ export {
     signUpPost,
     signInGet,
     signInPost,
+    signOutPost,
     // getUserData,
     // tokenSecretKey,
     // getLoginData,

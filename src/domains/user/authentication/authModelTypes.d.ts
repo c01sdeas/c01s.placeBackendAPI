@@ -28,12 +28,3 @@ interface IUserRecoveryKeyData{
     username: string;
     key: string;
 }
-
-export {
-    //mongoose_models
-    IUser,
-    IUserData,
-    IUserAuthData,
-    IUserAuthLog,
-    IUserRecoveryKeyData,
-}

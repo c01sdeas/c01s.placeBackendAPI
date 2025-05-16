@@ -56,11 +56,9 @@ const userCrudMiddleware = (requiredRole) => {
                                         if (element === 'user' && req.body.username === req.session.username) {
                                             permissionControl = true;
                                         }
-                                        else if (userRolesData.roles.includes('admin') || userRolesData.roles.includes('moderator')) {
+                                        if (userRolesData.roles.includes('admin') || userRolesData.roles.includes('moderator')) {
                                             permissionControl = true;
                                         }
-                                        else
-                                            return res.status(401).json({ error: 'Access denied.4' });
                                     }
                                 });
                                 if (!permissionControl)

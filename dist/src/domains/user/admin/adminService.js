@@ -40,7 +40,7 @@ const changeUserBanStatusService = (username) => __awaiter(void 0, void 0, void 
         if (userAuthData === null || userAuthData === void 0 ? void 0 : userAuthData.username) {
             userAuthData.status = !userAuthData.status;
             yield userAuthData.save();
-            return { success: true, statusCode: 200, message: 'User banned.' };
+            return { success: true, statusCode: 200, message: 'Updated user ban status.' };
         }
         else
             return { success: false, message: 'User not found.', statusCode: 400 };

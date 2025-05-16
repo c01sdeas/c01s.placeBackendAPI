@@ -41,7 +41,6 @@ const usernameAvailableControl = async (username: string): Promise<ResponseWithM
 
 
 import crypto from 'crypto';
-import { IUser, IUserAuthLog, IUserData } from './authModelTypes.js';
 const userSignUp = async (userData:IUserSignUpRequestData): Promise<ResponseWithMessage<IUser>> => {
     try {
             const newUser = new user(userData);

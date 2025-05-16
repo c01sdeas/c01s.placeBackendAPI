@@ -1,84 +1,17 @@
-import { Request, Response, NextFunction } from 'express';
-import { userSchemaExport } from '../../user/authentication/authModel.js';
-const model = require('./model');
+import { Request, Response, NextFunction } from "express";
+import { addNewBlogPostService } from "./service.js";
 
-import { blogSchemaExport } from './model.js';
-
-
-const blogModel = blogSchemaExport;
-const blogList = async (req:Request,res:Response,next:NextFunction) => {
+const addNewBlogPostPost = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const blogList = await blogModel.find();
-        if (blogList) return res.json(blogList);
+        const response = await addNewBlogPostService(req.body);
+
+        return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 }
 
-const blogAddGet = (req:Request,res:Response,next:NextFunction) => {
-    try {
-        return res.json({
-            title: '',
-            intro: '',
-            content: '',
-        });
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const blogAdd = async (req:Request,res:Response,next:NextFunction) => {
-    try {
-        if (req.session.userRoles!.includes('admin') || req.session.userRoles!.includes('writer')) {
-            const newBlog = new blogModel({
-                title: req.body.title,
-                intro: req.body.intro,
-                content: req.body.content,
-                status: true,
-                username: req.session.username
-            });
-    
-            newBlog.save();
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const blogUpdateGet = (req:Request,res:Response,next:NextFunction) => {
-    try {
-        return res.json({
-
-        });
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const blogUpdate = async (req:Request,res:Response,next:NextFunction) => {
-    try {
-        
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const blogDelete = async (req:Request,res:Response,next:NextFunction) => {
-    try {
-        const blogDataForUpdate = await blogModel.findOne({_id:req.body.blogID});
-        if (blogDataForUpdate) {
-            await blogModel.findOneAndUpdate({_id:req.body.blogID}, {status: !blogDataForUpdate.status});
-        } else {
-
-        }
-        
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-module.exports = {
-    blogList,
-    blogAdd,
-    blogAddGet
+export {
+    addNewBlogPostPost
 }

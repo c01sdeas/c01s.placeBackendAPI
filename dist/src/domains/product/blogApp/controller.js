@@ -7,78 +7,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const model = require('./model');
-import { blogSchemaExport } from './model.js';
-const blogModel = blogSchemaExport;
-const blogList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+import { addNewBlogPostService } from "./service.js";
+const addNewBlogPostPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const blogList = yield blogModel.find();
-        if (blogList)
-            return res.json(blogList);
+        const response = yield addNewBlogPostService(req.body);
+        return res.status(response.statusCode).json(response);
     }
     catch (error) {
         console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const blogAddGet = (req, res, next) => {
-    try {
-        return res.json({
-            title: '',
-            intro: '',
-            content: '',
-        });
-    }
-    catch (error) {
-        console.log(error);
-    }
-};
-const blogAdd = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        if (req.session.userRoles.includes('admin') || req.session.userRoles.includes('writer')) {
-            const newBlog = new blogModel({
-                title: req.body.title,
-                intro: req.body.intro,
-                content: req.body.content,
-                status: true,
-                username: req.session.username
-            });
-            newBlog.save();
-        }
-    }
-    catch (error) {
-        console.log(error);
-    }
-});
-const blogUpdateGet = (req, res, next) => {
-    try {
-        return res.json({});
-    }
-    catch (error) {
-        console.log(error);
-    }
-};
-const blogUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-    }
-    catch (error) {
-        console.log(error);
-    }
-});
-const blogDelete = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const blogDataForUpdate = yield blogModel.findOne({ _id: req.body.blogID });
-        if (blogDataForUpdate) {
-            yield blogModel.findOneAndUpdate({ _id: req.body.blogID }, { status: !blogDataForUpdate.status });
-        }
-        else {
-        }
-    }
-    catch (error) {
-        console.log(error);
-    }
-});
-module.exports = {
-    blogList,
-    blogAdd,
-    blogAddGet
-};
+export { addNewBlogPostPost };

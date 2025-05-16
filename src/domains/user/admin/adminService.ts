@@ -40,7 +40,7 @@ const changeUserBanStatusService = async (username:string):Promise<ResponseWithM
         if (userAuthData?.username) {
             userAuthData.status = !userAuthData.status;
             await userAuthData.save();
-            return { success: true, statusCode: 200, message: 'User banned.' };
+            return { success: true, statusCode: 200, message: 'Updated user ban status.' };
         } else
             return { success: false, message: 'User not found.', statusCode: 400 };
     } catch (error) {

@@ -1,2 +1,2 @@
-module.exports = require('./routes');
-export {};
+import blogAppRoutes from './routes.js';
+export default blogAppRoutes;

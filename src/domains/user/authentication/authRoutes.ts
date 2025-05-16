@@ -1,7 +1,7 @@
 import authCrudMiddleware from '../../../middlewares/crudMiddlewares/authCrudMiddleware.js';
 import userCrudMiddleware from '../../../middlewares/crudMiddlewares/userCrudMiddleware.js';
 
-import { signUpPost, signUpGet, signInGet, signInPost, usernameControlForUserSignUpGet, usernameControlForUserSignUpPost, getSessionUserData, changeUserPasswordDataPost, userPasswordRecoveryPost, usernameAvailableControlForUserPasswordRecoveryPost, checkUserRecoveryKeyDataForUserPasswordRecoveryPost, getNewUserRecoveryKeyForForgettenKeyPost } from './authController.js';
+import { signUpPost, signUpGet, signInGet, signInPost, usernameControlForUserSignUpGet, usernameControlForUserSignUpPost, getSessionUserData, changeUserPasswordDataPost, userPasswordRecoveryPost, usernameAvailableControlForUserPasswordRecoveryPost, checkUserRecoveryKeyDataForUserPasswordRecoveryPost, getNewUserRecoveryKeyForForgettenKeyPost, signOutPost } from './authController.js';
 
 import express from 'express';
 
@@ -12,6 +12,8 @@ router.get('/username-control-for-signup', usernameControlForUserSignUpGet).post
 router.get('/signup', signUpGet).post('/signup', signUpPost);
 
 router.get('/signin', signInGet).post('/signin', signInPost);
+
+router.post('/signout', signOutPost);
 
 
 //user-app
@@ -28,6 +30,8 @@ router.post('/check-user-recovery-key-data', checkUserRecoveryKeyDataForUserPass
 router.post('/user-password-recovery', userPasswordRecoveryPost);
 
 router.post('/get-new-user-recovery-key', [authCrudMiddleware([]), userCrudMiddleware(['user'])], getNewUserRecoveryKeyForForgettenKeyPost);
+
+
 
 
 // router.get('/login-data', verifyToken, getLoginData);

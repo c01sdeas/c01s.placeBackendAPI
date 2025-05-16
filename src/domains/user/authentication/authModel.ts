@@ -1,7 +1,6 @@
 // const mongoose = require('mongoose');
 
 import { Model, Schema, model } from 'mongoose';
-import { IUser, IUserAuthData, IUserAuthLog, IUserData, IUserRecoveryKeyData } from './authModelTypes.js';
 
 const userSchema : Schema<IUser> = new Schema<IUser>({
     username: {
