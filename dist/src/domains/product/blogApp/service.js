@@ -29,6 +29,7 @@ const addNewBlogPostService = (data) => __awaiter(void 0, void 0, void 0, functi
             title: data.title,
             username: data.username
         });
+        // await newBlogData.save();
         return { statusCode: 201, success: true, message: 'New post added.' };
     }
     catch (error) {

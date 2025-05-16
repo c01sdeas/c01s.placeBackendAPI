@@ -26,6 +26,7 @@ const addNewBlogPostService = async (data:INewBlogRequestData):Promise<ResponseW
             username: data.username
         });
 
+        // await newBlogData.save();
         return { statusCode: 201, success: true, message: 'New post added.' };
 
 

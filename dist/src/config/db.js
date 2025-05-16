@@ -11,8 +11,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 const mongoDBConnection = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (process.env.MONGODB_CONNECTION_STRING) {
-        const mongodbconnect = yield mongoose.connect(process.env.MONGODB_CONNECTION_STRING);
+    if (process.env.MONGODB_URI) {
+        const mongodbconnect = yield mongoose.connect(process.env.MONGODB_URI);
         if (mongodbconnect)
             console.log('db success');
         else
