@@ -1,5 +1,4 @@
 import { userSchemaExport } from "../authentication/authModel.js";
-import { IUser, IUserData, IUserRecoveryKeyData } from "../authentication/authModelTypes.js";
 import { IUserPhotosData, IUserThemesData } from "./userModelTypes.js";
 import { userPhotoSchemaExport, userThemeSchemaExport } from "./userModel.js";
 

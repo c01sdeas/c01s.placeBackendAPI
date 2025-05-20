@@ -8,10 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import slugify from 'slugify';
-import { blogCategorySchemaExport, blogSchemaExport } from "./model.js";
-import { userSchemaExport } from '../../user/authentication/authModel.js';
+import { blogSchemaExport } from "./model.js";
+import { userSchemaExport } from '../../../user/authentication/authModel.js';
 //blogCUD
-const addNewBlogPostImageService = (data) => __awaiter(void 0, void 0, void 0, function* () {
+const createNewBlogPostImageService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return { statusCode: 201, success: true, message: 'Image added.' };
     }
@@ -20,7 +20,7 @@ const addNewBlogPostImageService = (data) => __awaiter(void 0, void 0, void 0, f
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
-const addNewBlogPostService = (data) => __awaiter(void 0, void 0, void 0, function* () {
+const createNewBlogPostService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let slug = slugify.default(data.title, { lower: true, strict: true });
         let slugExists = yield blogSchemaExport.exists({ slug });
@@ -194,156 +194,126 @@ const getAllBlogPostsService = (data) => __awaiter(void 0, void 0, void 0, funct
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
-//blogCategoryCUD
-const addNewBlogPostCategoryService = (data) => __awaiter(void 0, void 0, void 0, function* () {
+const getBlogPostBySlugService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let slug = slugify.default(data.title, { lower: true, strict: true });
-        let slugExists = yield blogCategorySchemaExport.exists({ slug });
-        let counter = 1;
-        while (slugExists) {
-            slug = `${slug}-${counter}`;
-            slugExists = yield blogCategorySchemaExport.exists({ slug });
-            counter++;
+        const { slug } = data;
+        const post = yield blogSchemaExport.findOne({ slug });
+        if (!post) {
+            return { statusCode: 404, success: false, message: 'Post not found.' };
         }
-        const newCategoryData = new blogCategorySchemaExport({
-            title: data.title,
-            slug,
-            description: data.description,
-            image: data.image,
-            status: data.status,
-            meta: data.meta,
-            username: data.username
-        });
-        yield newCategoryData.save();
-        return { statusCode: 201, success: true, message: 'New category added.' };
+        const user = yield userSchemaExport.findOne({ username: post.username });
+        if (!user) {
+            return { statusCode: 404, success: false, message: 'User not found.' };
+        }
+        const formattedPost = {
+            slug: post.slug,
+            image: post.image,
+            readingTime: post.readingTime,
+            meta: post.meta,
+            title: post.title,
+            intro: post.intro,
+            content: post.content,
+            username: post.username,
+            status: post.status,
+            userNickname: user.userNickname,
+        };
+        return { statusCode: 200, success: true, message: 'Post fetched successfully.', data: formattedPost };
     }
     catch (error) {
         console.log(error);
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
-const deleteBlogPostCategoryService = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllBlogPostsByCategoryService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const category = yield blogCategorySchemaExport.findByIdAndDelete(id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
+        const { categoryID, page, limit } = data;
+        const posts = yield blogSchemaExport.find({ category: categoryID }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        if (!posts || posts.length === 0) {
+            return { statusCode: 404, success: false, message: 'No posts found.' };
         }
-        return { statusCode: 200, success: true, message: 'Category deleted successfully.' };
-    }
-    catch (error) {
-        console.log(error);
-        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
-    }
-});
-const updateBlogPostCategoryTitleService = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
-        let slug = slugify.default(data.title, { lower: true, strict: true });
-        let slugExists = yield blogCategorySchemaExport.exists({ slug });
-        let counter = 1;
-        while (slugExists) {
-            slug = `${slug}-${counter}`;
-            slugExists = yield blogCategorySchemaExport.exists({ slug });
-            counter++;
-        }
-        category.slug = slug;
-        category.title = data.title;
-        yield category.save();
-        return { statusCode: 200, success: true, message: 'Category updated successfully.' };
-    }
-    catch (error) {
-        console.log(error);
-        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
-    }
-});
-const updateBlogPostCategoryDescriptionService = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
-        category.description = data.description;
-        yield category.save();
-        return { statusCode: 200, success: true, message: 'Category updated successfully.' };
-    }
-    catch (error) {
-        console.log(error);
-        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
-    }
-});
-const updateBlogPostCategoryImageService = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
-        category.image = data.image;
-        yield category.save();
-        return { statusCode: 200, success: true, message: 'Category updated successfully.' };
-    }
-    catch (error) {
-        console.log(error);
-        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
-    }
-});
-const updateBlogPostCategoryStatusService = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
-        category.status = !category.status;
-        yield category.save();
-        return { statusCode: 200, success: true, message: 'Category updated successfully.' };
-    }
-    catch (error) {
-        console.log(error);
-        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
-    }
-});
-const updateBlogPostCategoryMetaService = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
-        category.meta = data.meta;
-        yield category.save();
-        return { statusCode: 200, success: true, message: 'Category updated successfully.' };
-    }
-    catch (error) {
-        console.log(error);
-        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
-    }
-});
-//blogCategoryRead
-const getAllBlogPostCategoriesService = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { page, limit } = data;
-        const categories = yield blogCategorySchemaExport.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
-        if (!categories || categories.length === 0) {
-            return { statusCode: 404, success: false, message: 'No categories found.' };
-        }
-        const users = yield userSchemaExport.find({ username: { $in: categories.map(category => category.username) } });
-        const formattedCategories = categories.map(category => ({
-            slug: category.slug,
-            image: category.image,
-            title: category.title,
-            description: category.description,
-            status: category.status,
-            meta: category.meta,
-            username: category.username,
+        const users = yield userSchemaExport.find({ username: { $in: posts.map(post => post.username) } });
+        const formattedPosts = posts.map(post => ({
+            slug: post.slug,
+            image: post.image,
+            readingTime: post.readingTime,
+            meta: post.meta,
+            title: post.title,
+            intro: post.intro,
+            content: post.content,
+            username: post.username,
+            status: post.status,
             userNickname: '',
         }));
-        formattedCategories.forEach(category => {
-            const user = users.find(user => user.username === category.username);
+        formattedPosts.forEach(post => {
+            const user = users.find(user => user.username === post.username);
             if (user)
-                category.userNickname = user.userNickname;
+                post.userNickname = user.userNickname;
         });
-        return { statusCode: 200, success: true, message: 'Categories fetched successfully.', data: formattedCategories };
+        return { statusCode: 200, success: true, message: 'Posts fetched successfully.', data: formattedPosts };
+    }
+    catch (error) {
+        console.log(error);
+        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
+    }
+});
+const getAllBlogPostsByUsernameService = (data) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, page, limit } = data;
+        const posts = yield blogSchemaExport.find({ username }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        if (!posts || posts.length === 0) {
+            return { statusCode: 404, success: false, message: 'No posts found.' };
+        }
+        const users = yield userSchemaExport.find({ username: { $in: posts.map(post => post.username) } });
+        const formattedPosts = posts.map(post => ({
+            slug: post.slug,
+            image: post.image,
+            readingTime: post.readingTime,
+            meta: post.meta,
+            title: post.title,
+            intro: post.intro,
+            content: post.content,
+            username: post.username,
+            status: post.status,
+            userNickname: '',
+        }));
+        formattedPosts.forEach(post => {
+            const user = users.find(user => user.username === post.username);
+            if (user)
+                post.userNickname = user.userNickname;
+        });
+        return { statusCode: 200, success: true, message: 'Posts fetched successfully.', data: formattedPosts };
+    }
+    catch (error) {
+        console.log(error);
+        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
+    }
+});
+const getAllBlogPostsByUsernameAndCategoryService = (data) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, categoryID, page, limit } = data;
+        const posts = yield blogSchemaExport.find({ username, category: categoryID }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        if (!posts || posts.length === 0) {
+            return { statusCode: 404, success: false, message: 'No posts found.' };
+        }
+        const users = yield userSchemaExport.find({ username: { $in: posts.map(post => post.username) } });
+        const formattedPosts = posts.map(post => ({
+            slug: post.slug,
+            image: post.image,
+            readingTime: post.readingTime,
+            meta: post.meta,
+            title: post.title,
+            intro: post.intro,
+            content: post.content,
+            username: post.username,
+            status: post.status,
+            userNickname: '',
+        }));
+        formattedPosts.forEach(post => {
+            const user = users.find(user => user.username === post.username);
+            if (user)
+                post.userNickname = user.userNickname;
+        });
+        return { statusCode: 200, success: true, message: 'Posts fetched successfully.', data: formattedPosts };
     }
     catch (error) {
         console.log(error);
@@ -352,6 +322,4 @@ const getAllBlogPostCategoriesService = (data) => __awaiter(void 0, void 0, void
 });
 export { 
 //blogPost
-addNewBlogPostService, deleteBlogPostService, updateBlogPostTitleService, updateBlogPostContentService, updateBlogPostImageService, updateBlogPostMetaService, updateBlogPostIntroService, updateBlogPostStatusService, getAllBlogPostsService, addNewBlogPostImageService, 
-//blogCategory
-addNewBlogPostCategoryService, deleteBlogPostCategoryService, updateBlogPostCategoryTitleService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryStatusService, updateBlogPostCategoryMetaService, getAllBlogPostCategoriesService, };
+createNewBlogPostService, deleteBlogPostService, updateBlogPostTitleService, updateBlogPostContentService, updateBlogPostImageService, updateBlogPostMetaService, updateBlogPostIntroService, updateBlogPostStatusService, getAllBlogPostsService, createNewBlogPostImageService, getBlogPostBySlugService, getAllBlogPostsByCategoryService, getAllBlogPostsByUsernameService, getAllBlogPostsByUsernameAndCategoryService };

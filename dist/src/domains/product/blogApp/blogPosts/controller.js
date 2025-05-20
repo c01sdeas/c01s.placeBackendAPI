@@ -7,14 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { addNewBlogPostCategoryService, addNewBlogPostImageService, addNewBlogPostService, deleteBlogPostCategoryService, deleteBlogPostService, getAllBlogPostCategoriesService, getAllBlogPostsService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryMetaService, updateBlogPostCategoryStatusService, updateBlogPostCategoryTitleService, updateBlogPostContentService, updateBlogPostImageService, updateBlogPostIntroService, updateBlogPostMetaService, updateBlogPostStatusService, updateBlogPostTitleService } from "./service.js";
+import { createNewBlogPostImageService, createNewBlogPostService, deleteBlogPostService, getAllBlogPostsService, getAllBlogPostsByCategoryService, getBlogPostBySlugService, updateBlogPostContentService, updateBlogPostImageService, updateBlogPostIntroService, updateBlogPostMetaService, updateBlogPostStatusService, updateBlogPostTitleService, getAllBlogPostsByUsernameService, getAllBlogPostsByUsernameAndCategoryService } from "./service.js";
 //blogPostCUD
-const addNewBlogPostImagePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createNewBlogPostImageController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('İstek geldi:', req.method, req.url);
         console.log('Gelen veri:', req.body);
         console.log('Yüklenen dosya:', req.file);
-        const response = yield addNewBlogPostImageService(req.body);
+        const response = yield createNewBlogPostImageService(req.body);
         return res.status(response.statusCode).json(response);
     }
     catch (error) {
@@ -22,9 +22,9 @@ const addNewBlogPostImagePost = (req, res, next) => __awaiter(void 0, void 0, vo
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const addNewBlogPostPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createNewBlogPostController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield addNewBlogPostService(req.body);
+        const response = yield createNewBlogPostService(req.body);
         return res.status(response.statusCode).json(response);
     }
     catch (error) {
@@ -32,7 +32,7 @@ const addNewBlogPostPost = (req, res, next) => __awaiter(void 0, void 0, void 0,
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const deleteBlogPostPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteBlogPostController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield deleteBlogPostService(req.body);
         return res.status(response.statusCode).json(response);
@@ -42,7 +42,7 @@ const deleteBlogPostPost = (req, res, next) => __awaiter(void 0, void 0, void 0,
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogPostMetaPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateBlogPostMetaController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield updateBlogPostMetaService(req.body);
         return res.status(response.statusCode).json(response);
@@ -52,7 +52,7 @@ const updateBlogPostMetaPost = (req, res, next) => __awaiter(void 0, void 0, voi
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogPostIntroPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateBlogPostIntroController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield updateBlogPostIntroService(req.body);
         return res.status(response.statusCode).json(response);
@@ -62,7 +62,7 @@ const updateBlogPostIntroPost = (req, res, next) => __awaiter(void 0, void 0, vo
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogPostStatusPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateBlogPostStatusController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield updateBlogPostStatusService(req.body);
         return res.status(response.statusCode).json(response);
@@ -72,7 +72,7 @@ const updateBlogPostStatusPost = (req, res, next) => __awaiter(void 0, void 0, v
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogPostImagePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateBlogPostImageController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield updateBlogPostImageService(req.body);
         return res.status(response.statusCode).json(response);
@@ -82,7 +82,7 @@ const updateBlogPostImagePost = (req, res, next) => __awaiter(void 0, void 0, vo
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogPostContentPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateBlogPostContentController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield updateBlogPostContentService(req.body);
         return res.status(response.statusCode).json(response);
@@ -92,7 +92,7 @@ const updateBlogPostContentPost = (req, res, next) => __awaiter(void 0, void 0, 
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogPostTitlePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateBlogPostTitleController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield updateBlogPostTitleService(req.body);
         return res.status(response.statusCode).json(response);
@@ -103,7 +103,7 @@ const updateBlogPostTitlePost = (req, res, next) => __awaiter(void 0, void 0, vo
     }
 });
 //blogPostRead
-const getAllBlogPostsPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllBlogPostsController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield getAllBlogPostsService(req.body);
         return res.status(response.statusCode).json(response);
@@ -113,10 +113,9 @@ const getAllBlogPostsPost = (req, res, next) => __awaiter(void 0, void 0, void 0
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-//blogCategoryCUD
-const addNewBlogCategoryPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getBlogPostBySlugController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield addNewBlogPostCategoryService(req.body);
+        const response = yield getBlogPostBySlugService(req.body);
         return res.status(response.statusCode).json(response);
     }
     catch (error) {
@@ -124,9 +123,9 @@ const addNewBlogCategoryPost = (req, res, next) => __awaiter(void 0, void 0, voi
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogCategoryTitlePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllBlogPostsByCategoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield updateBlogPostCategoryTitleService(req.body);
+        const response = yield getAllBlogPostsByCategoryService(req.body);
         return res.status(response.statusCode).json(response);
     }
     catch (error) {
@@ -134,9 +133,9 @@ const updateBlogCategoryTitlePost = (req, res, next) => __awaiter(void 0, void 0
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogCategoryImagePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllBlogPostsByUsernameController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield updateBlogPostCategoryImageService(req.body);
+        const response = yield getAllBlogPostsByUsernameService(req.body);
         return res.status(response.statusCode).json(response);
     }
     catch (error) {
@@ -144,50 +143,9 @@ const updateBlogCategoryImagePost = (req, res, next) => __awaiter(void 0, void 0
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 });
-const updateBlogCategoryStatusPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllBlogPostsByUsernameAndCategoryController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield updateBlogPostCategoryStatusService(req.body);
-        return res.status(response.statusCode).json(response);
-    }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
-    }
-});
-const updateBlogCategoryMetaPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const response = yield updateBlogPostCategoryMetaService(req.body);
-        return res.status(response.statusCode).json(response);
-    }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
-    }
-});
-const updateBlogCategoryDescriptionPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const response = yield updateBlogPostCategoryDescriptionService(req.body);
-        return res.status(response.statusCode).json(response);
-    }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
-    }
-});
-const deleteBlogCategoryPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const response = yield deleteBlogPostCategoryService(req.body);
-        return res.status(response.statusCode).json(response);
-    }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
-    }
-});
-//blogCategoryRead
-const getAllBlogCategoriesPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const response = yield getAllBlogPostCategoriesService(req.body);
+        const response = yield getAllBlogPostsByUsernameAndCategoryService(req.body);
         return res.status(response.statusCode).json(response);
     }
     catch (error) {
@@ -197,6 +155,4 @@ const getAllBlogCategoriesPost = (req, res, next) => __awaiter(void 0, void 0, v
 });
 export { 
 //blogPosts
-addNewBlogPostPost, deleteBlogPostPost, updateBlogPostMetaPost, updateBlogPostIntroPost, updateBlogPostStatusPost, updateBlogPostImagePost, updateBlogPostContentPost, updateBlogPostTitlePost, getAllBlogPostsPost, addNewBlogPostImagePost, 
-//blogCategories
-addNewBlogCategoryPost, updateBlogCategoryTitlePost, updateBlogCategoryImagePost, updateBlogCategoryStatusPost, deleteBlogCategoryPost, updateBlogCategoryMetaPost, updateBlogCategoryDescriptionPost, getAllBlogCategoriesPost, };
+createNewBlogPostImageController, createNewBlogPostController, deleteBlogPostController, updateBlogPostMetaController, updateBlogPostIntroController, updateBlogPostStatusController, updateBlogPostImageController, updateBlogPostContentController, updateBlogPostTitleController, getAllBlogPostsController, getBlogPostBySlugController, getAllBlogPostsByCategoryController, getAllBlogPostsByUsernameController, getAllBlogPostsByUsernameAndCategoryController };

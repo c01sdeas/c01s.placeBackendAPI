@@ -91,6 +91,8 @@ const updateUserPhotosGet = (req, res, next) => {
         console.log(error);
     }
 };
+//userphotos is not working
+// import path from 'path';
 import { changeUserDateOfBirthDataService, changeUserEmailDataService, changeUserFirstNameDataService, changeUserLastNameDataService, changeUserNicknameDataService, changeUserThemesData, getUsersList, getUserThemesData } from './userService.js';
 const updateUserPhotosPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {

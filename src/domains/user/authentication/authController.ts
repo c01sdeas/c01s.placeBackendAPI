@@ -6,7 +6,6 @@ import bcrypt from 'bcrypt';
 import {Request, Response, NextFunction} from 'express';
 import { ValidationError } from '../../../types/errors.js';
 import { changeUserPasswordDataService, checkUserRecoveryKeyDataForUserPasswordRecoveryService, getEmptyUser, getNewUserRecoveryKeyForForgettenKeyService, getSessionUserDataService, usernameAvailableControl, usernameAvailableControlForUserPasswordRecoveryService, userPasswordRecoveryService, userSignIn, userSignUp } from './authService.js';
-import { IUser, IUserData } from './authModelTypes.js';
 const user = userSchemaExport;
 
 

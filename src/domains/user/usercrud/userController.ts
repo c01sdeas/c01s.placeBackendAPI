@@ -110,8 +110,7 @@ const updateUserPhotosGet = (req:Request,res:Response,next:NextFunction) => {
 
 
 //userphotos is not working
-import path from 'path';
-import { IUserData } from '../authentication/authModelTypes.js';
+// import path from 'path';
 import { changeUserDateOfBirthDataService, changeUserEmailDataService, changeUserFirstNameDataService, changeUserLastNameDataService, changeUserNicknameDataService, changeUserThemesData, getUsersList, getUserThemesData } from './userService.js';
 import { IUserThemesData } from './userModelTypes.js';
 const updateUserPhotosPost = async (req:Request,res:Response,next:NextFunction): Promise<any> => {

@@ -37,6 +37,11 @@ const blogSchema : Schema<IBlog> = new Schema<IBlog>({
         required: [true, 'Content is required.'],
         trim: true,
     },
+    categoryID: {
+        type: String,
+        required: [true, 'Category is required.'],
+        trim: true,
+    },
     status: {
         type: Boolean,
         default: true,
@@ -53,7 +58,7 @@ const blogSchema : Schema<IBlog> = new Schema<IBlog>({
 blogSchema.pre('save', async function (next) {
   if (this.isModified('title') || !this.slug) {
     this.slug = slugify.default(this.title, { lower: true, strict: true });
-    const existingPost = await this.model('Post').findOne({ slug: this.slug, _id: { $ne: this._id } });
+    const existingPost = await this.model('blog').findOne({ slug: this.slug, _id: { $ne: this._id } });
     if (existingPost) {
       this.slug = `${this.slug}-${Date.now()}`;
     }
