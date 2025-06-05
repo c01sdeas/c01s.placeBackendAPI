@@ -9,7 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { Schema, model } from "mongoose";
 import slugify from "slugify";
-const blogSchema = new Schema({
+const subscribeNewsSchema = new Schema({
+    email: {
+        type: String,
+        required: [true, 'Email is required.'],
+        match: [/.+\@.+\..+/, 'Please enter a valid email.'],
+        minlength: [1, 'E-mail must be at least 1 characters long.'],
+        maxlength: [255, 'E-mail can be up to 255 characters.'],
+        trim: true,
+        unique: true,
+    }
+}, { timestamps: true });
+const subscribeNewsSchemaExport = model('subscribeNews', subscribeNewsSchema, 'subscribedNews');
+const blogPostSchema = new Schema({
     slug: {
         type: String,
         required: [true, 'Slug is required.'],
@@ -52,7 +64,7 @@ const blogSchema = new Schema({
     },
     status: {
         type: Boolean,
-        default: true,
+        default: false,
         required: [true, 'Status is required.'],
         trim: true,
     },
@@ -62,11 +74,11 @@ const blogSchema = new Schema({
         trim: true,
     }
 }, { timestamps: true });
-blogSchema.pre('save', function (next) {
+blogPostSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (this.isModified('title') || !this.slug) {
             this.slug = slugify.default(this.title, { lower: true, strict: true });
-            const existingPost = yield this.model('blog').findOne({ slug: this.slug, _id: { $ne: this._id } });
+            const existingPost = yield this.model('blogPost').findOne({ slug: this.slug, _id: { $ne: this._id } });
             if (existingPost) {
                 this.slug = `${this.slug}-${Date.now()}`;
             }
@@ -74,5 +86,24 @@ blogSchema.pre('save', function (next) {
         next();
     });
 });
-const blogSchemaExport = model('blog', blogSchema, 'blogs');
-export { blogSchemaExport };
+const blogPostSchemaExport = model('blogPost', blogPostSchema, 'blogPosts');
+const blogPostVoteSchema = new Schema({
+    blogID: {
+        type: String,
+        required: [true, 'Blog ID is required.'],
+        trim: true,
+    },
+    username: {
+        type: String,
+        required: [true, 'Username is required.'],
+        trim: true,
+    },
+    vote: {
+        type: Number,
+        required: [true, 'Vote is required.'],
+        trim: true,
+    }
+}, { timestamps: true });
+blogPostVoteSchema.index({ blogID: 1, username: 1 }, { unique: true });
+const blogPostVoteSchemaExport = model('blogPostVote', blogPostVoteSchema, 'blogPostVotes');
+export { blogPostSchemaExport, subscribeNewsSchemaExport, blogPostVoteSchemaExport };

@@ -8,9 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { userSchemaExport } from "../authentication/authModel.js";
-import { userPhotoSchemaExport, userThemeSchemaExport } from "./userModel.js";
+import { userPhotoSchemaExport, userRolesSchemaExport, userThemeSchemaExport } from "./userModel.js";
 const user = userSchemaExport;
-const getUsersList = () => __awaiter(void 0, void 0, void 0, function* () {
+const getUsersListService = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return { statusCode: 200, success: true, data: yield user.find() };
     }
@@ -19,12 +19,26 @@ const getUsersList = () => __awaiter(void 0, void 0, void 0, function* () {
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
-//session-data
-const getUserBaseData = (username) => __awaiter(void 0, void 0, void 0, function* () {
+//roles
+const getUserRolesDataService = (username) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('kullanıcıadı:' + username);
-        console.log(yield user.findOne({ username: username }));
-        return { statusCode: 200, success: true, data: yield user.findOne({ username }) };
+        const userRoles = yield userRolesSchemaExport.findOne({ username });
+        if (userRoles)
+            return { statusCode: 200, success: true, data: userRoles.roles };
+        return { statusCode: 400, success: false, message: 'No roles found for this user.', data: [] };
+    }
+    catch (error) {
+        console.log(error);
+        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
+    }
+});
+//session-data      
+const getUserBaseDataService = (username) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userBaseData = yield user.findOne({ username });
+        if (userBaseData)
+            return { statusCode: 200, success: true, data: userBaseData };
+        return { statusCode: 400, success: false, message: 'No user found with this username.', data: null };
     }
     catch (error) {
         console.log(error);
@@ -32,9 +46,12 @@ const getUserBaseData = (username) => __awaiter(void 0, void 0, void 0, function
     }
 });
 const userPhotos = userPhotoSchemaExport;
-const getUserPhotosData = (username) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserPhotosDataService = (username) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return { statusCode: 200, success: true, data: yield userPhotos.findOne({ username }) };
+        const userPhotosData = yield userPhotos.findOne({ username });
+        if (userPhotosData)
+            return { statusCode: 200, success: true, data: userPhotosData };
+        return { statusCode: 400, success: false, message: 'No photos found for this user.', data: null };
     }
     catch (error) {
         console.log(error);
@@ -43,18 +60,24 @@ const getUserPhotosData = (username) => __awaiter(void 0, void 0, void 0, functi
 });
 //user-theme
 const userThemes = userThemeSchemaExport;
-const getUserThemesData = (username) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserThemesDataService = (username) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return { statusCode: 200, success: true, data: yield userThemes.findOne({ username }) };
+        const userThemesData = yield userThemes.findOne({ username });
+        if (userThemesData)
+            return { statusCode: 200, success: true, data: userThemesData };
+        else {
+            yield new userThemes({ username, lights: false }).save();
+            return { statusCode: 200, success: true, data: { username, lights: false } };
+        }
     }
     catch (error) {
-        console.log();
+        console.log(error);
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
 //edit-user-profile-data
 //theme
-const changeUserThemesData = (username) => __awaiter(void 0, void 0, void 0, function* () {
+const changeUserThemesDataService = (username) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = yield userThemes.findOne({ username });
         if (data)
@@ -128,6 +151,6 @@ const changeUserDateOfBirthDataService = (username, newUserDateOfBirth) => __awa
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
-export { getUsersList, getUserBaseData, getUserPhotosData, getUserThemesData, 
+export { getUsersListService, getUserBaseDataService, getUserPhotosDataService, getUserThemesDataService, getUserRolesDataService, 
 //edit-user-profile-data
-changeUserThemesData, changeUserNicknameDataService, changeUserFirstNameDataService, changeUserLastNameDataService, changeUserEmailDataService, changeUserDateOfBirthDataService, };
+changeUserThemesDataService, changeUserNicknameDataService, changeUserFirstNameDataService, changeUserLastNameDataService, changeUserEmailDataService, changeUserDateOfBirthDataService, };

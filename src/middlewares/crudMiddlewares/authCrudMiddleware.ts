@@ -12,50 +12,27 @@ const authCrudMiddleware = (requiredRole: string[]) => {
         let getLoggedUserData = undefined;
         
         try {
-            // if (token === undefined || token === null) return res.status(401).json({ error: 'Access denied.' });
-    
             if (token !== undefined && token !== null && tokenSecretKey && req.headers['authorization'] !== undefined && req.headers['authorization'] !== null) {
                 jwt.verify(req.headers['authorization'], tokenSecretKey, async (err:any, token:any) => {
-    
                     if (!req.session) {
                         return res.status(500).json({ error: 'Session is not initialized' });
-                      }
-                      // username özelliği olup olmadığını kontrol et
-                    // if (!req.session.username) {
-                    //     req.session.username = 'your-username'; // Varsayılan olarak ata
-                    // }
+                    }
                     if (err) {return res.status(401).json({error:'Session has expired.'});}
-        
-                    // console.log(req.session);
-        
-                    // // req.session.username = 'your-username';
                     
-                    // console.log(req.session.username);
-                    
-                    if (req.session.username) {
+                    if (req.session.username && req.session.username !== null && req.session.username !== undefined) {
                         getLoggedUserData = await authLog.findOne({ username: token.username });
-    
                         if (getLoggedUserData !== undefined && getLoggedUserData !== null && getLoggedUserData.token !== req.headers['authorization']) {
-                            console.log('Access denied. By local token.');
-                            return res.status(401).json({ error: 'Access denied.' });
+                            return res.status(401).json({ error: 'Access denied.1' });
                         }
-    
                         if(getLoggedUserData && getLoggedUserData.username !== req.session.username)
-                            return res.status(401).json({ error: 'Access denied.' });
+                            return res.status(401).json({ error: 'Access denied.2' });
                         else
                         next();
-                    } else
-                    return res.status(401).json({ error: 'Access denied.' });
+                    } else return res.status(401).json({ error: 'Access denied.3' });
                 });
-            } else if(requiredRole.includes('visitor')) {console.log('visitor rolü var'); next()}  else {
-                return res.status(401).json({ error: 'Access denied.' });
-            }
-            
-            
-    
+            } else if(requiredRole.includes('visitor')) {next()}  else return res.status(401).json({ error: 'Access denied.4' });
         } catch (error) {
-            console.log(error);
-            return res.status(401).json({ error: 'Access denied.' });
+            return res.status(401).json({ error: 'Access denied.5' });
         }
     }
 }

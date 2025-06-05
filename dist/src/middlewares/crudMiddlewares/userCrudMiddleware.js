@@ -18,22 +18,14 @@ const userCrudMiddleware = (requiredRole) => {
         const userRoles = userRolesSchemaExport;
         let getLoggedUserData = undefined;
         try {
-            // if (token === undefined || token === null) return res.status(401).json({ error: 'Access denied.' });
             if (token !== undefined && token !== null && tokenSecretKey && req.headers['authorization'] !== undefined && req.headers['authorization'] !== null) {
                 jwt.verify(req.headers['authorization'], tokenSecretKey, (err, token) => __awaiter(void 0, void 0, void 0, function* () {
                     if (!req.session) {
                         return res.status(500).json({ error: 'Session is not initialized' });
                     }
-                    // username özelliği olup olmadığını kontrol et
-                    // if (!req.session.username) {
-                    //     req.session.username = 'your-username'; // Varsayılan olarak ata
-                    // }
                     if (err) {
                         return res.status(401).json({ error: 'Session has expired.' });
                     }
-                    // console.log(req.session);
-                    // // req.session.username = 'your-username';
-                    // console.log(req.session.username);
                     if (req.session.username) {
                         getLoggedUserData = yield authLog.findOne({ username: token.username });
                         if (getLoggedUserData !== undefined && getLoggedUserData !== null && getLoggedUserData.token !== req.headers['authorization'])
@@ -42,14 +34,7 @@ const userCrudMiddleware = (requiredRole) => {
                             return res.status(401).json({ error: 'Access denied.' });
                         if (getLoggedUserData && getLoggedUserData.username) {
                             const userRolesData = yield userRoles.findOne({ username: getLoggedUserData.username });
-                            console.log(userRolesData);
-                            console.log(requiredRole);
                             if (userRolesData && userRolesData.roles) {
-                                // userRolesData.roles.forEach(element => {
-                                //     if (requiredRole.includes(element)) {
-                                //         next();
-                                //     }
-                                // });
                                 let permissionControl = false;
                                 userRolesData.roles.forEach(element => {
                                     if (requiredRole.includes(element)) {
@@ -65,12 +50,6 @@ const userCrudMiddleware = (requiredRole) => {
                                     return res.status(401).json({ error: 'Access denied.3' });
                                 else
                                     next();
-                                // if (requiredRole.includes('user') && userRolesData.roles.includes('user') && req.body.username === req.session.username) 
-                                //     next();
-                                // else if (userRolesData.roles.includes('admin') ||    userRolesData.roles.includes('moderator'))
-                                //         next();
-                                // else 
-                                //     return res.status(401).json({ error: 'Access denied.' });
                             }
                             else {
                                 yield new userRoles({ username: req.session.username, roles: ['user'] }).save();
@@ -89,7 +68,6 @@ const userCrudMiddleware = (requiredRole) => {
                 return res.status(401).json({ error: 'Access denied.' });
         }
         catch (error) {
-            console.log(error);
             return res.status(401).json({ error: 'Access denied.' });
         }
     });

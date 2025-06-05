@@ -1,20 +1,18 @@
 // const { getUserList, userUpdateGet, userUpdate, deleteUserGet, deleteUser, changeUserThemeGet, changeUserTheme, getUserThemeData, updateUserPhotosGet, updateUserPhotosPost } = require('./controller');
-import { getUserList, userUpdateGet, userUpdate, deleteUserGet, deleteUser, changeUserThemeDataGet, changeUserThemeDataPost, getUserThemeData, updateUserPhotosGet, updateUserPhotosPost, changeUserNicknameDataPost, changeUserFirstNameDataPost, changeUserLastNameDataPost, changeUserEmailDataPost, changeUserDateOfBirthDataPost } from './userController.js';
+import { getUserListController, getUserRolesDataController, changeUserThemeDataController, getUserThemeDataController, changeUserNicknameDataController, changeUserFirstNameDataController, changeUserLastNameDataController, changeUserEmailDataController, changeUserDateOfBirthDataController } from './userController.js';
 import express from 'express';
 const router = express.Router();
-router.get('/list', getUserList);
+router.get('/list', getUserListController);
 /*why is here?
 router.get('/logged-user-data', getUserData);*/
-router.get('/update-user-profile-data', userUpdateGet).post('/update-user-profile-data', userUpdate);
-router.get('/update-user-photos-data', updateUserPhotosGet).post('/update-user-photos-data', updateUserPhotosPost);
-router.get('/delete-user-data', deleteUserGet).post('/delete-user-data', deleteUser);
+router.post('/get-user-roles-data', getUserRolesDataController);
 //theme
-router.get('/change-theme-data', changeUserThemeDataGet).post('/change-theme-data', changeUserThemeDataPost);
-router.get('/get-theme-data').post('/get-theme-data', getUserThemeData);
+router.post('/change-user-theme-data', changeUserThemeDataController);
+router.post('/get-user-theme-data', getUserThemeDataController);
 //edit-user-profile-data
-router.post('/change-user-nickname-data', changeUserNicknameDataPost);
-router.post('/change-user-firstname-data', changeUserFirstNameDataPost);
-router.post('/change-user-lastname-data', changeUserLastNameDataPost);
-router.post('/change-user-email-data', changeUserEmailDataPost);
-router.post('/change-user-date-of-birth-data', changeUserDateOfBirthDataPost);
+router.post('/change-user-nickname-data', changeUserNicknameDataController);
+router.post('/change-user-firstname-data', changeUserFirstNameDataController);
+router.post('/change-user-lastname-data', changeUserLastNameDataController);
+router.post('/change-user-email-data', changeUserEmailDataController);
+router.post('/change-user-date-of-birth-data', changeUserDateOfBirthDataController);
 export default router;

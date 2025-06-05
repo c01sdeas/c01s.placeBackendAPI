@@ -1,6 +1,5 @@
 import express from "express";
 const app = express();
-import fileUpload from 'express-fileupload';
 // import expressLayouts from 'express-ejs-layouts';
 // import path from 'path';
 import logMiddleware from './src/middlewares/logger/logMiddleware.js';
@@ -45,8 +44,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 app.use(flash());
-app.use(fileUpload());
+// app.use(fileUpload());
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 // app.use((req,res,next)=>{
 //     res.locals.commentControl = req.flash('commentControl');
 //     next();

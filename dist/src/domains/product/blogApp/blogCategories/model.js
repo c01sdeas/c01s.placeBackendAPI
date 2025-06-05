@@ -37,7 +37,7 @@ const blogCategorySchema = new Schema({
     },
     status: {
         type: Boolean,
-        default: true,
+        default: false,
         required: [true, 'Status is required.'],
         trim: true,
     },

@@ -18,22 +18,14 @@ const adminCrudMiddleware = (requiredRole) => {
         const userRoles = userRolesSchemaExport;
         let getLoggedUserData = undefined;
         try {
-            // if (token === undefined || token === null) return res.status(401).json({ error: 'Access denied.' });
             if (token !== undefined && token !== null && tokenSecretKey && req.headers['authorization'] !== undefined && req.headers['authorization'] !== null) {
                 jwt.verify(req.headers['authorization'], tokenSecretKey, (err, token) => __awaiter(void 0, void 0, void 0, function* () {
                     if (!req.session) {
                         return res.status(500).json({ error: 'Session is not initialized' });
                     }
-                    // username özelliği olup olmadığını kontrol et
-                    // if (!req.session.username) {
-                    //     req.session.username = 'your-username'; // Varsayılan olarak ata
-                    // }
                     if (err) {
                         return res.status(401).json({ error: 'Session has expired.' });
                     }
-                    // console.log(req.session);
-                    // // req.session.username = 'your-username';
-                    // console.log(req.session.username);
                     if (req.session.username) {
                         getLoggedUserData = yield authLog.findOne({ username: token.username });
                         if (getLoggedUserData !== undefined && getLoggedUserData !== null && getLoggedUserData.token !== req.headers['authorization'])
@@ -46,12 +38,6 @@ const adminCrudMiddleware = (requiredRole) => {
                                 let permissionControl = false;
                                 userRolesData.roles.forEach(element => {
                                     if (requiredRole.includes(element)) {
-                                        console.log(element);
-                                        console.log(element);
-                                        console.log(element);
-                                        console.log(element);
-                                        console.log(element);
-                                        console.log(element);
                                         permissionControl = true;
                                     }
                                 });
@@ -79,7 +65,6 @@ const adminCrudMiddleware = (requiredRole) => {
                 return res.status(401).json({ error: 'Access denied.6' });
         }
         catch (error) {
-            console.log(error);
             return res.status(401).json({ error: 'Access denied.7' });
         }
     });

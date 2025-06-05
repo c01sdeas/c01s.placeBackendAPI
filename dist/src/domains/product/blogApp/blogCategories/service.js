@@ -11,9 +11,23 @@ import slugify from 'slugify';
 import { blogCategorySchemaExport } from "./model.js";
 import { userSchemaExport } from '../../../user/authentication/authModel.js';
 //blogCategoryCUD
-const createNewBlogPostCategoryService = (data) => __awaiter(void 0, void 0, void 0, function* () {
+const createNewBlogPostCategoryImageService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let slug = slugify.default(data.title, { lower: true, strict: true });
+        const blogPostCategoryData = yield blogCategorySchemaExport.findOne({ slug: data.slug });
+        if (!blogPostCategoryData)
+            return { statusCode: 404, success: false, message: 'Category not found.' };
+        blogPostCategoryData.image = data.fileName;
+        yield blogPostCategoryData.save();
+        return { statusCode: 201, success: true, message: 'New image added.' };
+    }
+    catch (error) {
+        console.log(error);
+        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
+    }
+});
+const createNewBlogPostCategoryService = (contentData) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let slug = slugify.default(contentData.title, { lower: true, strict: true });
         let slugExists = yield blogCategorySchemaExport.exists({ slug });
         let counter = 1;
         while (slugExists) {
@@ -22,13 +36,12 @@ const createNewBlogPostCategoryService = (data) => __awaiter(void 0, void 0, voi
             counter++;
         }
         const newCategoryData = new blogCategorySchemaExport({
-            title: data.title,
+            title: contentData.title,
             slug,
-            description: data.description,
-            image: data.image,
-            status: data.status,
-            meta: data.meta,
-            username: data.username
+            description: contentData.description,
+            image: contentData.image,
+            meta: contentData.meta,
+            username: contentData.username
         });
         yield newCategoryData.save();
         return { statusCode: 201, success: true, message: 'New category added.' };
@@ -41,9 +54,8 @@ const createNewBlogPostCategoryService = (data) => __awaiter(void 0, void 0, voi
 const deleteBlogPostCategoryService = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const category = yield blogCategorySchemaExport.findByIdAndDelete(id);
-        if (!category) {
+        if (!category)
             return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
         return { statusCode: 200, success: true, message: 'Category deleted successfully.' };
     }
     catch (error) {
@@ -54,9 +66,8 @@ const deleteBlogPostCategoryService = (id) => __awaiter(void 0, void 0, void 0, 
 const updateBlogPostCategoryTitleService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
+        if (!category)
             return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
         let slug = slugify.default(data.title, { lower: true, strict: true });
         let slugExists = yield blogCategorySchemaExport.exists({ slug });
         let counter = 1;
@@ -78,9 +89,8 @@ const updateBlogPostCategoryTitleService = (data) => __awaiter(void 0, void 0, v
 const updateBlogPostCategoryDescriptionService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
+        if (!category)
             return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
         category.description = data.description;
         yield category.save();
         return { statusCode: 200, success: true, message: 'Category updated successfully.' };
@@ -93,9 +103,8 @@ const updateBlogPostCategoryDescriptionService = (data) => __awaiter(void 0, voi
 const updateBlogPostCategoryImageService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
+        if (!category)
             return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
         category.image = data.image;
         yield category.save();
         return { statusCode: 200, success: true, message: 'Category updated successfully.' };
@@ -108,9 +117,8 @@ const updateBlogPostCategoryImageService = (data) => __awaiter(void 0, void 0, v
 const updateBlogPostCategoryStatusService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
+        if (!category)
             return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
         category.status = !category.status;
         yield category.save();
         return { statusCode: 200, success: true, message: 'Category updated successfully.' };
@@ -123,9 +131,8 @@ const updateBlogPostCategoryStatusService = (data) => __awaiter(void 0, void 0, 
 const updateBlogPostCategoryMetaService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const category = yield blogCategorySchemaExport.findById(data.id);
-        if (!category) {
+        if (!category)
             return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
         category.meta = data.meta;
         yield category.save();
         return { statusCode: 200, success: true, message: 'Category updated successfully.' };
@@ -140,11 +147,11 @@ const getAllBlogPostCategoriesService = (data) => __awaiter(void 0, void 0, void
     try {
         const { page, limit } = data;
         const categories = yield blogCategorySchemaExport.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
-        if (!categories || categories.length === 0) {
-            return { statusCode: 404, success: false, message: 'No categories found.' };
-        }
+        if (!categories || categories.length === 0)
+            return { statusCode: 200, success: false, message: 'No categories found.' };
         const users = yield userSchemaExport.find({ username: { $in: categories.map(category => category.username) } });
         const formattedCategories = categories.map(category => ({
+            id: category._id.toString(),
             slug: category.slug,
             image: category.image,
             title: category.title,
@@ -153,6 +160,8 @@ const getAllBlogPostCategoriesService = (data) => __awaiter(void 0, void 0, void
             meta: category.meta,
             username: category.username,
             userNickname: '',
+            createdAt: category.createdAt,
+            updatedAt: category.updatedAt,
         }));
         formattedCategories.forEach(category => {
             const user = users.find(user => user.username === category.username);
@@ -166,9 +175,29 @@ const getAllBlogPostCategoriesService = (data) => __awaiter(void 0, void 0, void
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
-const createNewBlogPostCategoryImageService = () => __awaiter(void 0, void 0, void 0, function* () {
+const getBlogPostCategoryBySlugService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return { statusCode: 200, success: true, message: 'Image uploaded successfully.', data: true };
+        const { slug, page, limit } = data;
+        const category = yield blogCategorySchemaExport.findOne({ slug }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        if (!category)
+            return { statusCode: 200, success: false, message: 'Category not found.' };
+        const user = yield userSchemaExport.findOne({ username: category.username });
+        if (!user)
+            return { statusCode: 404, success: false, message: 'User not found.' };
+        const formattedCategory = {
+            id: category._id.toString(),
+            slug: category.slug,
+            image: category.image,
+            title: category.title,
+            description: category.description,
+            status: category.status,
+            meta: category.meta,
+            username: category.username,
+            userNickname: user.userNickname,
+            createdAt: category.createdAt,
+            updatedAt: category.updatedAt,
+        };
+        return { statusCode: 200, success: true, message: 'Category fetched successfully.', data: formattedCategory };
     }
     catch (error) {
         console.log(error);
@@ -177,4 +206,4 @@ const createNewBlogPostCategoryImageService = () => __awaiter(void 0, void 0, vo
 });
 export { 
 //blogCategory
-createNewBlogPostCategoryService, createNewBlogPostCategoryImageService, deleteBlogPostCategoryService, updateBlogPostCategoryTitleService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryStatusService, updateBlogPostCategoryMetaService, getAllBlogPostCategoriesService, };
+createNewBlogPostCategoryImageService, createNewBlogPostCategoryService, deleteBlogPostCategoryService, updateBlogPostCategoryTitleService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryStatusService, updateBlogPostCategoryMetaService, getAllBlogPostCategoriesService, getBlogPostCategoryBySlugService };

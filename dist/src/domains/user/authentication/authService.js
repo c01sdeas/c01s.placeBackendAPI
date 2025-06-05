@@ -13,23 +13,8 @@ const userAuthData = userAuthDataSchemaExport;
 // const getUserData = getUserSchemaExport;
 const userRecoveryKeySchema = userRecoveryKeySchemaExport;
 const userAuthLog = userAuthLogSchemaExport;
-const getEmptyUser = () => {
-    try {
-        return new user({
-            username: "",
-            password: "",
-            userFirstName: "",
-            userLastName: "",
-            userEmail: "",
-            userNickname: ""
-        });
-    }
-    catch (error) {
-        return error;
-    }
-};
 import bcrypt from 'bcrypt';
-const usernameAvailableControl = (username) => __awaiter(void 0, void 0, void 0, function* () {
+const usernameAvailableControlService = (username) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!username || username.length <= 2) {
             return { data: username, success: false, message: 'Username must be longer than 2 characters.', statusCode: 400 };
@@ -45,7 +30,7 @@ const usernameAvailableControl = (username) => __awaiter(void 0, void 0, void 0,
     }
 });
 import crypto from 'crypto';
-const userSignUp = (userData) => __awaiter(void 0, void 0, void 0, function* () {
+const userSignUpService = (userData) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUser = new user(userData);
         const newUserAuthData = new userAuthData(userData);
@@ -91,9 +76,9 @@ const userSignUp = (userData) => __awaiter(void 0, void 0, void 0, function* () 
 //write-this
 const tokenSecretKey = crypto.randomBytes(32).toString('hex');
 import jwt from 'jsonwebtoken';
-import { getUserBaseData } from '../usercrud/userService.js';
+import { getUserBaseDataService } from '../usercrud/userService.js';
 import { userRolesSchemaExport } from '../usercrud/userModel.js';
-const userSignIn = (userData) => __awaiter(void 0, void 0, void 0, function* () {
+const userSignInService = (userData) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userAuthDataControl = yield userAuthData.findOne({ username: userData.username });
         if (userAuthDataControl != null && userAuthDataControl.status === false) {
@@ -139,7 +124,7 @@ const userSignIn = (userData) => __awaiter(void 0, void 0, void 0, function* () 
 const getSessionUserDataService = (username) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const sessionUserBaseData = yield getUserBaseData(username);
+        const sessionUserBaseData = yield getUserBaseDataService(username);
         if ((_a = sessionUserBaseData.data) === null || _a === void 0 ? void 0 : _a.status)
             return { statusCode: 200, success: true, data: sessionUserBaseData.data };
         return { success: false, message: 'Internal Server Error', statusCode: 500 };
@@ -241,4 +226,4 @@ const getNewUserRecoveryKeyForForgettenKeyService = (username) => __awaiter(void
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 });
-export { getEmptyUser, usernameAvailableControl, userSignUp, userSignIn, getSessionUserDataService, tokenSecretKey, changeUserPasswordDataService, userPasswordRecoveryService, usernameAvailableControlForUserPasswordRecoveryService, checkUserRecoveryKeyDataForUserPasswordRecoveryService, getNewUserRecoveryKeyForForgettenKeyService };
+export { usernameAvailableControlService, userSignUpService, userSignInService, getSessionUserDataService, tokenSecretKey, changeUserPasswordDataService, userPasswordRecoveryService, usernameAvailableControlForUserPasswordRecoveryService, checkUserRecoveryKeyDataForUserPasswordRecoveryService, getNewUserRecoveryKeyForForgettenKeyService };

@@ -63,8 +63,9 @@ app.use(bodyParser.json());
 
 app.use(flash());
 
-app.use(fileUpload());
+// app.use(fileUpload());
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
 
 // app.use((req,res,next)=>{
