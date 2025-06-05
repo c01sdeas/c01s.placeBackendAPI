@@ -1,43 +1,61 @@
 //blogCategory
-interface INewBlogCategoryRequestData {
+interface INewBlogCategoryRequestDto {
     title: string;
-    slug: string;
     description: string;
     image?: string;
     status: boolean;
     meta: string;
     username: string;
 }
-interface IUpdateBlogCategoryTitleRequestData {
+interface ICreateNewBlogCategoryImageRequestDto{
+    slug: string;
+    fileName: string;
+}
+interface IUpdateBlogCategoryTitleRequestDto {
     id: string;
     title: string;
 }
-interface IUpdateBlogCategoryDescriptionRequestData {
+interface IUpdateBlogCategoryDescriptionRequestDto {
     id: string;
     description: string;
 }
-interface IUpdateBlogCategoryImageRequestData {
+interface IUpdateBlogCategoryImageRequestDto {
     id: string;
     image: string;
 }
-interface IUpdateBlogCategoryMetaRequestData {
+interface IUpdateBlogCategoryMetaRequestDto {
     id: string;
     meta: string;
 }
-interface IUpdateBlogCategoryStatusRequestData {
+interface IUpdateBlogCategoryStatusRequestDto {
     id: string;
     status: boolean;
 }
 
-interface IGetAllBlogCategoriesRequestData {
+interface IGetAllBlogCategoriesRequestDto {
     page: number;
     limit: number;
 }
-interface IGetBlogCategoryBySlugRequestData {
+interface IGetBlogPostCategoryBySlugRequestDto {
     slug: string;
+    page: number;
+    limit: number;
 }
-interface IGetAllBlogPostCategoriesRequestData {
+interface IGetAllBlogPostCategoriesRequestDto {
     page: number;
     limit: number;
     categoryID: string;
+}
+
+export type {
+    INewBlogCategoryRequestDto,
+    ICreateNewBlogCategoryImageRequestDto,
+    IUpdateBlogCategoryTitleRequestDto,
+    IUpdateBlogCategoryDescriptionRequestDto,
+    IUpdateBlogCategoryImageRequestDto,
+    IUpdateBlogCategoryMetaRequestDto,
+    IUpdateBlogCategoryStatusRequestDto,
+    IGetAllBlogCategoriesRequestDto,
+    IGetBlogPostCategoryBySlugRequestDto,
+    IGetAllBlogPostCategoriesRequestDto
 }

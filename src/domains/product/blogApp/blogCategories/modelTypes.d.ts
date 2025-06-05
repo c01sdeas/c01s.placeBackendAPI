@@ -6,4 +6,10 @@ interface IBlogCategory {
     status: boolean;
     meta: string;
     username: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export type {
+    IBlogCategory
 }

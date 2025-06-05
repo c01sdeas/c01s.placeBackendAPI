@@ -1,5 +1,6 @@
 import { Schema, Model, model } from "mongoose";
 import slugify from "slugify";
+import { IBlogCategory } from "./modelTypes.js";
 
 const blogCategorySchema : Schema<IBlogCategory> = new Schema<IBlogCategory>({
     slug: {
@@ -29,7 +30,7 @@ const blogCategorySchema : Schema<IBlogCategory> = new Schema<IBlogCategory>({
     },
     status: {
         type: Boolean,
-        default: true,
+        default: false,
         required: [true, 'Status is required.'],
         trim: true,
     },

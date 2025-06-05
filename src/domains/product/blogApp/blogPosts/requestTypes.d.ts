@@ -1,66 +1,111 @@
-interface ICreateNewBlogPostRequestData {
-    slug: string;
+interface ICreateNewBlogPostRequestDto {
     image?: string;
     meta: string;
     title: string;
     intro: string;
     content: string;
+    categoryID: string;
     username: string;
 }
 
-interface IUpdateBlogPostTitleRequestData {
+interface IUpdateBlogPostTitleRequestDto {
     id: string;
     title: string;
 }
 
-interface IUpdateBlogPostContentRequestData {
+interface IUpdateBlogPostContentRequestDto {
     id: string;
     content: string;
 }
 
-interface IUpdateBlogPostImageRequestData {
+interface IUpdateBlogPostImageRequestDto {
     id: string;
     image: string;
 }
 
-interface IUpdateBlogPostMetaRequestData {
+interface IUpdateBlogPostMetaRequestDto {
     id: string;
     meta: string;
 }
 
-interface IUpdateBlogPostIntroRequestData {
+interface IUpdateBlogPostIntroRequestDto {
     id: string;
     intro: string;
 }
 
-interface IUpdateBlogPostStatusRequestData {
+interface IUpdateBlogPostUserVotesRequestDto {
+    blogID: string;
+    username: string;
+    vote: number;
+}
+
+interface IGetBlogPostVotesRequestDto {
+    blogID: string;
+}
+
+interface IGetBlogPostUserVoteControlRequestDto {
+    blogID: string;
+    username: string;
+}
+
+interface IUpdateBlogPostStatusRequestDto {
     id: string;
 }
 
-interface IGetAllBlogPostsRequestData {
+interface IGetAllBlogPostsRequestDto {
     page: number;
     limit: number;
 }
 
-interface IGetBlogPostBySlugRequestData {
+interface IGetBlogPostBySlugRequestDto {
     slug: string;
 }
 
-interface IGetBlogPostByCategoryIDRequestData {
+interface IGetBlogPostByCategoryIDRequestDto {
     categoryID: string;
     page: number;
     limit: number;
 }
 
-interface IGetBlogPostByUsernameRequestData {
+interface IGetBlogPostByCategorySlugRequestDto {
+    slug: string;
+    page: number;
+    limit: number;
+}
+
+interface IGetBlogPostByUsernameRequestDto {
     username: string;
     page: number;
     limit: number;
 }
 
-interface IGetBlogPostByUsernameAndCategoryIDRequestData {
+interface IGetBlogPostByUsernameAndCategoryIDRequestDto {
     username: string;
     categoryID: string;
     page: number;
     limit: number;
+}
+
+interface ISubscribeToNewsRequestDto {
+    email: string;
+}
+
+export type {
+    ICreateNewBlogPostRequestDto,
+    IUpdateBlogPostTitleRequestDto,
+    IUpdateBlogPostContentRequestDto,
+    IUpdateBlogPostImageRequestDto,
+    IUpdateBlogPostMetaRequestDto,
+    IUpdateBlogPostIntroRequestDto,
+    IUpdateBlogPostUserVotesRequestDto,
+    IGetBlogPostVotesRequestDto,
+    IGetBlogPostUserVoteControlRequestDto,
+    IUpdateBlogPostStatusRequestDto,
+    IGetAllBlogPostsRequestDto,
+    IGetBlogPostBySlugRequestDto,
+    IGetBlogPostByCategoryIDRequestDto,
+    IGetBlogPostByCategorySlugRequestDto,
+    IGetBlogPostByUsernameRequestDto,
+    IGetBlogPostByUsernameAndCategoryIDRequestDto,
+    ISubscribeToNewsRequestDto,
 }

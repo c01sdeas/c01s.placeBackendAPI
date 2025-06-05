@@ -1,4 +1,11 @@
-interface IBlog {
+
+interface ISubscribeToNews {
+    email: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface IBlogPost {
     slug: string;
     image: string;
     readingTime: string;
@@ -9,4 +16,20 @@ interface IBlog {
     categoryID: string;
     status: boolean;
     username: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface IBlogPostVote {
+    blogID: string;
+    username: string;
+    vote: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export type {
+    ISubscribeToNews,
+    IBlogPost,
+    IBlogPostVote
 }

@@ -1,20 +1,30 @@
 import { Request, Response, NextFunction } from "express";
-import { createNewBlogPostCategoryService, deleteBlogPostCategoryService, getAllBlogPostCategoriesService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryMetaService, updateBlogPostCategoryStatusService, updateBlogPostCategoryTitleService } from "./service.js";
-import { createNewBlogPostImageService } from "../blogPosts/service.js";
+import { createNewBlogPostCategoryImageService, createNewBlogPostCategoryService, deleteBlogPostCategoryService, getAllBlogPostCategoriesService, getBlogPostCategoryBySlugService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryMetaService, updateBlogPostCategoryStatusService, updateBlogPostCategoryTitleService } from "./service.js";
 
 //blogCategoryCUD
-const createNewBlogCategoryController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
+const createNewBlogCategoryImageController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await createNewBlogPostCategoryService(req.body);
-        return res.status(response.statusCode).json(response);
+        const uploadedFile = req.file;      
+        if (uploadedFile) {
+            req.body.fileName = uploadedFile.filename;
+            const response = await createNewBlogPostCategoryImageService(req.body);
+            return res.status(response.statusCode).json(response);
+        } else {
+            return res.status(400).json({ success: false, message: 'No file uploaded.', statusCode: 400 });
+        }
     } catch (error) {
         console.log(error);
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 }
-const createNewBlogCategoryImageController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
+const createNewBlogCategoryController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await createNewBlogPostImageService(req.body);
+        const uploadedFile = req.file;
+        if (uploadedFile) {
+            req.body.image = uploadedFile.filename;
+        }
+        req.body.username = req.session?.username;
+        const response = await createNewBlogPostCategoryService(req.body);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -33,6 +43,13 @@ const updateBlogCategoryTitleController = async (req:Request, res:Response, next
 
 const updateBlogCategoryImageController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
+        const uploadedFile = req.file;
+        if (uploadedFile) {
+            req.body.fileName = uploadedFile.filename;  
+        } else {
+            return res.status(400).json({ success: false, message: 'No file uploaded.', statusCode: 400 });
+        }
+        req.body.username = req.session?.username;
         const response = await updateBlogPostCategoryImageService(req.body);
         return res.status(response.statusCode).json(response);
     } catch (error) {
@@ -86,6 +103,15 @@ const getAllBlogCategoriesController = async (req:Request, res:Response, next:Ne
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     }
 }
+const getBlogPostCategoryBySlugController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
+    try {
+        const response = await getBlogPostCategoryBySlugService(req.body);
+        return res.status(response.statusCode).json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
+    }
+}
 
 export {
     //blogCategories
@@ -97,5 +123,6 @@ export {
     updateBlogCategoryMetaController,
     updateBlogCategoryDescriptionController,
     deleteBlogCategoryController,
-    getAllBlogCategoriesController
+    getAllBlogCategoriesController,
+    getBlogPostCategoryBySlugController
 }

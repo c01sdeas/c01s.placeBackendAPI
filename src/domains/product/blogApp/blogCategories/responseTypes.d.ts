@@ -1,4 +1,5 @@
-interface IBlogCategoryListResponseData {
+interface IBlogCategoryListResponseDto {
+    id: string;
     slug: string;
     image: string;
     meta: string;
@@ -7,4 +8,10 @@ interface IBlogCategoryListResponseData {
     username: string;
     userNickname: string;
     description: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export type {
+    IBlogCategoryListResponseDto
 }

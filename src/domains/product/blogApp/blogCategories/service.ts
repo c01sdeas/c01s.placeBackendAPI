@@ -1,30 +1,40 @@
 import slugify from 'slugify';
 import { blogCategorySchemaExport } from "./model.js";
 import { userSchemaExport } from '../../../user/authentication/authModel.js';
-import { format } from 'winston';
-import uploadImageMiddleware from '../../../../middlewares/blogAppMiddlewares/uploadImageMiddleware.js';
-import { Multer } from 'multer';
-
+import { ICreateNewBlogCategoryImageRequestDto, IGetAllBlogPostCategoriesRequestDto, IGetBlogPostCategoryBySlugRequestDto, INewBlogCategoryRequestDto, IUpdateBlogCategoryDescriptionRequestDto, IUpdateBlogCategoryImageRequestDto, IUpdateBlogCategoryMetaRequestDto, IUpdateBlogCategoryStatusRequestDto, IUpdateBlogCategoryTitleRequestDto } from './requestTypes.js';
+import { IBlogCategoryListResponseDto } from './responseTypes.js';
 //blogCategoryCUD
-const createNewBlogPostCategoryService = async (data:INewBlogCategoryRequestData):Promise<ResponseWithMessage<boolean>> => {
+const createNewBlogPostCategoryImageService = async (data:ICreateNewBlogCategoryImageRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
-        let slug = slugify.default(data.title, { lower: true, strict: true });
+        const blogPostCategoryData = await blogCategorySchemaExport.findOne({slug: data.slug});
+        
+        if (!blogPostCategoryData) return { statusCode: 404, success: false, message: 'Category not found.' };
+        blogPostCategoryData.image = data.fileName;
+        await blogPostCategoryData.save();
+        return { statusCode: 201, success: true, message: 'New image added.' };
+    } catch (error) {
+        console.log(error);
+        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
+    }
+}
+
+const createNewBlogPostCategoryService = async (contentData:INewBlogCategoryRequestDto):Promise<ResponseWithMessage<boolean>> => {
+    try {
+        let slug = slugify.default(contentData.title, { lower: true, strict: true });
         let slugExists = await blogCategorySchemaExport.exists({ slug });
         let counter = 1;
         while (slugExists) {
             slug = `${slug}-${counter}`;
             slugExists = await blogCategorySchemaExport.exists({ slug });
             counter++;
-        }   
-
+        }
         const newCategoryData = new blogCategorySchemaExport({
-            title: data.title,
+            title: contentData.title,
             slug,
-            description: data.description,
-            image: data.image,
-            status: data.status,
-            meta: data.meta,
-            username: data.username
+            description: contentData.description,
+            image: contentData.image,
+            meta: contentData.meta,
+            username: contentData.username
         });
         await newCategoryData.save();
         return { statusCode: 201, success: true, message: 'New category added.' };
@@ -37,9 +47,7 @@ const createNewBlogPostCategoryService = async (data:INewBlogCategoryRequestData
 const deleteBlogPostCategoryService = async (id:string):Promise<ResponseWithMessage<boolean>> => {
     try {
         const category = await blogCategorySchemaExport.findByIdAndDelete(id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
+        if (!category) return { statusCode: 404, success: false, message: 'Category not found.' };
         return { statusCode: 200, success: true, message: 'Category deleted successfully.' };
     } catch (error) {
         console.log(error);
@@ -47,12 +55,10 @@ const deleteBlogPostCategoryService = async (id:string):Promise<ResponseWithMess
     }
 }
 
-const updateBlogPostCategoryTitleService = async (data:IUpdateBlogCategoryTitleRequestData):Promise<ResponseWithMessage<boolean>> => {
+const updateBlogPostCategoryTitleService = async (data:IUpdateBlogCategoryTitleRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
         const category = await blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
+        if (!category) return { statusCode: 404, success: false, message: 'Category not found.' };
 
         let slug = slugify.default(data.title, { lower: true, strict: true });
 
@@ -76,12 +82,10 @@ const updateBlogPostCategoryTitleService = async (data:IUpdateBlogCategoryTitleR
     }
 }
 
-const updateBlogPostCategoryDescriptionService = async (data:IUpdateBlogCategoryDescriptionRequestData):Promise<ResponseWithMessage<boolean>> => {
+const updateBlogPostCategoryDescriptionService = async (data:IUpdateBlogCategoryDescriptionRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
         const category = await blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
+        if (!category) return { statusCode: 404, success: false, message: 'Category not found.' };
 
         category.description = data.description;
 
@@ -93,12 +97,10 @@ const updateBlogPostCategoryDescriptionService = async (data:IUpdateBlogCategory
     }
 }
 
-const updateBlogPostCategoryImageService = async (data:IUpdateBlogCategoryImageRequestData):Promise<ResponseWithMessage<boolean>> => {
+const updateBlogPostCategoryImageService = async (data:IUpdateBlogCategoryImageRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
         const category = await blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
+        if (!category) return { statusCode: 404, success: false, message: 'Category not found.' };
 
         category.image = data.image;
 
@@ -110,12 +112,10 @@ const updateBlogPostCategoryImageService = async (data:IUpdateBlogCategoryImageR
     }
 }
 
-const updateBlogPostCategoryStatusService = async (data:IUpdateBlogCategoryStatusRequestData):Promise<ResponseWithMessage<boolean>> => {
+const updateBlogPostCategoryStatusService = async (data:IUpdateBlogCategoryStatusRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
         const category = await blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
+        if (!category) return { statusCode: 404, success: false, message: 'Category not found.' };
 
         category.status = !category.status;
 
@@ -126,12 +126,10 @@ const updateBlogPostCategoryStatusService = async (data:IUpdateBlogCategoryStatu
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 }
-const updateBlogPostCategoryMetaService = async (data:IUpdateBlogCategoryMetaRequestData):Promise<ResponseWithMessage<boolean>> => {
+const updateBlogPostCategoryMetaService = async (data:IUpdateBlogCategoryMetaRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
         const category = await blogCategorySchemaExport.findById(data.id);
-        if (!category) {
-            return { statusCode: 404, success: false, message: 'Category not found.' };
-        }
+        if (!category) return { statusCode: 404, success: false, message: 'Category not found.' };
 
         category.meta = data.meta;
 
@@ -145,25 +143,26 @@ const updateBlogPostCategoryMetaService = async (data:IUpdateBlogCategoryMetaReq
 
 
 //blogCategoryRead
-const getAllBlogPostCategoriesService = async (data:IGetAllBlogPostCategoriesRequestData):Promise<ResponseWithMessage<IBlogCategoryListResponseData[]>> => {
+const getAllBlogPostCategoriesService = async (data:IGetAllBlogPostCategoriesRequestDto):Promise<ResponseWithMessage<IBlogCategoryListResponseDto[]>> => {
     try {
         const { page, limit } = data;
         const categories = await blogCategorySchemaExport.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
-        if (!categories || categories.length === 0) {
-            return { statusCode: 404, success: false, message: 'No categories found.' };
-        }
+        if (!categories || categories.length === 0) return { statusCode: 200, success: false, message: 'No categories found.' };
         const users = await userSchemaExport.find({ username: { $in: categories.map(category => category.username) } });
 
-        const formattedCategories : IBlogCategoryListResponseData[] = categories.map(category => ({
+        const formattedCategories : IBlogCategoryListResponseDto[] = categories.map(category => ({
+            id: category._id.toString(),
             slug: category.slug,
             image: category.image,
             title: category.title,
-            description: category.description,
+            description: category.description,  
             status: category.status,
             meta: category.meta,
             username: category.username,
             userNickname: '',
+            createdAt: category.createdAt,
+            updatedAt: category.updatedAt,
         }));
         
         formattedCategories.forEach(category => {
@@ -178,9 +177,27 @@ const getAllBlogPostCategoriesService = async (data:IGetAllBlogPostCategoriesReq
     }
 }
 
-const createNewBlogPostCategoryImageService = async ():Promise<ResponseWithMessage<boolean>> => {
+const getBlogPostCategoryBySlugService = async (data:IGetBlogPostCategoryBySlugRequestDto):Promise<ResponseWithMessage<IBlogCategoryListResponseDto>> => {
     try {
-        return { statusCode: 200, success: true, message: 'Image uploaded successfully.', data: true };
+        const { slug, page, limit } = data;
+        const category = await blogCategorySchemaExport.findOne({ slug }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        if (!category) return { statusCode: 200, success: false, message: 'Category not found.' };
+        const user = await userSchemaExport.findOne({ username: category.username });
+        if (!user) return { statusCode: 404, success: false, message: 'User not found.' };
+        const formattedCategory : IBlogCategoryListResponseDto = {
+            id: category._id.toString(),
+            slug: category.slug,
+            image: category.image,
+            title: category.title,
+            description: category.description,
+            status: category.status,
+            meta: category.meta,
+            username: category.username,
+            userNickname: user.userNickname,
+            createdAt: category.createdAt,
+            updatedAt: category.updatedAt,
+        };
+        return { statusCode: 200, success: true, message: 'Category fetched successfully.', data: formattedCategory };
     } catch (error) {
         console.log(error);
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
@@ -189,8 +206,8 @@ const createNewBlogPostCategoryImageService = async ():Promise<ResponseWithMessa
 
 export {
     //blogCategory
-    createNewBlogPostCategoryService,
     createNewBlogPostCategoryImageService,
+    createNewBlogPostCategoryService,
     deleteBlogPostCategoryService,
     updateBlogPostCategoryTitleService,
     updateBlogPostCategoryDescriptionService,
@@ -198,4 +215,5 @@ export {
     updateBlogPostCategoryStatusService,
     updateBlogPostCategoryMetaService,
     getAllBlogPostCategoriesService,
+    getBlogPostCategoryBySlugService
 }

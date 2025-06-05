@@ -1,10 +1,21 @@
-interface IBlogListResponseDto {
+interface IBlogLibraryResponseDto {
     id: string;
+    title: string;
+    description: string;
+    status: boolean;
+    username: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+interface IBlogPostInLibraryResponseDto {
+    libraryID: string;
+
+    id: string;
+    title: string;
     slug: string;
     image: string;
     readingTime: string;
     meta: string;
-    title: string;
     intro: string;
     content: string;
     categoryID: string;
@@ -12,23 +23,13 @@ interface IBlogListResponseDto {
     categorySlug: string;
     username: string;
     status: boolean;
-    
     userNickname: string;
     createdAt: Date;
     updatedAt: Date;
     voteCount: number;
 }
 
-interface IVoteResponseDto {
-    id: string;
-    blogID: string;
-    username: string;
-    vote: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
 export type {
-    IBlogListResponseDto,
-    IVoteResponseDto
+    IBlogLibraryResponseDto,
+    IBlogPostInLibraryResponseDto
 }
