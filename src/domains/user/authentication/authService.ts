@@ -7,23 +7,8 @@ const userAuthData = userAuthDataSchemaExport;
 const userRecoveryKeySchema = userRecoveryKeySchemaExport;
 const userAuthLog = userAuthLogSchemaExport;
 
-const getEmptyUser = () => {
-    try {
-        return new user({
-            username: "",
-            password: "",
-            userFirstName: "",
-            userLastName: "",
-            userEmail: "",
-            userNickname: ""
-        });
-    } catch (error) {
-        return error;
-    }
-}
-
 import bcrypt from 'bcrypt';
-const usernameAvailableControl = async (username: string): Promise<ResponseWithMessage<string>> => {
+const usernameAvailableControlService = async (username: string): Promise<ResponseWithMessage<string>> => {
     try {        
         if (!username || username.length <= 2) {
             return { data: username, success: false, message: 'Username must be longer than 2 characters.', statusCode: 400 };
@@ -41,7 +26,7 @@ const usernameAvailableControl = async (username: string): Promise<ResponseWithM
 
 
 import crypto from 'crypto';
-const userSignUp = async (userData:IUserSignUpRequestData): Promise<ResponseWithMessage<IUser>> => {
+const userSignUpService = async (userData:IUserSignUpRequestData): Promise<ResponseWithMessage<IUser>> => {
     try {
             const newUser = new user(userData);
             const newUserAuthData = new userAuthData(userData);
@@ -54,12 +39,6 @@ const userSignUp = async (userData:IUserSignUpRequestData): Promise<ResponseWith
                 await newUser.save();
                 await newUserAuthData.save();
             }
-                
-            
-
-
-            
-            
     
             //recoveryKey
             const userRecoveryKeyControl = await userRecoveryKeySchema.findOne({username: newUser.username});
@@ -111,14 +90,14 @@ const userSignUp = async (userData:IUserSignUpRequestData): Promise<ResponseWith
 //write-this
 const tokenSecretKey = crypto.randomBytes(32).toString('hex');
 import jwt from 'jsonwebtoken';
-import { getUserBaseData } from '../usercrud/userService.js';
+import { getUserBaseDataService } from '../usercrud/userService.js';
 import { userRolesSchemaExport } from '../usercrud/userModel.js';
-const userSignIn = async (userData:IUserSignInRequestData): Promise<ResponseWithMessage<IUserAuthLog>> => {
+const userSignInService = async (userData:IUserSignInRequestData): Promise<ResponseWithMessage<IUserAuthLog>> => {
     try {
 
         const userAuthDataControl = await userAuthData.findOne({username: userData.username});
 
-        if (userAuthDataControl != null &&userAuthDataControl.status === false) {
+        if (userAuthDataControl != null && userAuthDataControl.status === false) {
             return { statusCode: 403, success: false, message: 'You are banned.' };
         }
 
@@ -136,7 +115,6 @@ const userSignIn = async (userData:IUserSignInRequestData): Promise<ResponseWith
                 else
                 await new userAuthLog({token: jwt.sign({ username: userData.username }, tokenSecretKey, { expiresIn: '1h' }), username: userData.username}).save();
         
-
                 //data: userAuthLogControl
                 if(userAuthLogControl)
                 return {statusCode: 200, success: true, data: {username: userAuthLogControl.username, token: userAuthLogControl.token}, message: 'Authentication success!'};
@@ -174,7 +152,7 @@ const userSignIn = async (userData:IUserSignInRequestData): Promise<ResponseWith
 
 const getSessionUserDataService = async (username:string): Promise<ResponseWithMessage<IUserData>> => {
     try {
-        const sessionUserBaseData = await getUserBaseData(username);
+        const sessionUserBaseData = await getUserBaseDataService(username);
 
         if(sessionUserBaseData.data?.status)
         return { statusCode: 200, success: true, data: sessionUserBaseData.data };
@@ -283,10 +261,9 @@ const getNewUserRecoveryKeyForForgettenKeyService = async (username: string): Pr
 
 
 export {
-    getEmptyUser,
-    usernameAvailableControl,
-    userSignUp,
-    userSignIn,
+    usernameAvailableControlService,
+    userSignUpService,
+    userSignInService,
     getSessionUserDataService,
     tokenSecretKey,
     changeUserPasswordDataService,

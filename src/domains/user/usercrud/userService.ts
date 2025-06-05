@@ -1,9 +1,9 @@
 import { userSchemaExport } from "../authentication/authModel.js";
 import { IUserPhotosData, IUserThemesData } from "./userModelTypes.js";
-import { userPhotoSchemaExport, userThemeSchemaExport } from "./userModel.js";
+import { userPhotoSchemaExport, userRolesSchemaExport, userThemeSchemaExport } from "./userModel.js";
 
 const user = userSchemaExport;
-const getUsersList = async (): Promise<ResponseWithMessage<IUserData[]>> => {
+const getUsersListService = async (): Promise<ResponseWithMessage<IUserData[]>> => {
     try {
         return {statusCode: 200, success: true, data: await user.find()};
     } catch (error) {
@@ -12,13 +12,26 @@ const getUsersList = async (): Promise<ResponseWithMessage<IUserData[]>> => {
     }
 }
 
-//session-data
-const getUserBaseData = async (username:string): Promise<ResponseWithMessage<IUser>> => {
+//roles
+const getUserRolesDataService = async (username:string): Promise<ResponseWithMessage<string[]>> => {
     try {
-        console.log('kullanıcıadı:' + username);
-        console.log(await user.findOne({username: username}));
-        
-        return {statusCode: 200, success: true, data: await user.findOne({username})};
+        const userRoles = await userRolesSchemaExport.findOne({username});
+        if(userRoles)
+            return {statusCode: 200, success: true, data: userRoles.roles};
+        return {statusCode: 400, success: false, message: 'No roles found for this user.', data: []};
+    } catch (error) {
+        console.log(error);
+        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
+    }
+}
+
+//session-data      
+const getUserBaseDataService = async (username:string): Promise<ResponseWithMessage<IUser>> => {
+    try {
+        const userBaseData = await user.findOne({username});
+        if(userBaseData)
+            return {statusCode: 200, success: true, data: userBaseData};
+        return {statusCode: 400, success: false, message: 'No user found with this username.', data: null};
     } catch (error) {
         console.log(error);
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
@@ -26,9 +39,12 @@ const getUserBaseData = async (username:string): Promise<ResponseWithMessage<IUs
 }
 
 const userPhotos = userPhotoSchemaExport;
-const getUserPhotosData = async (username: string): Promise<ResponseWithMessage<IUserPhotosData>> => {
+const getUserPhotosDataService = async (username: string): Promise<ResponseWithMessage<IUserPhotosData>> => {
     try {
-        return { statusCode: 200, success: true, data: await userPhotos.findOne({username}) };
+        const userPhotosData = await userPhotos.findOne({username});
+        if(userPhotosData)
+            return {statusCode: 200, success: true, data: userPhotosData};
+        return {statusCode: 400, success: false, message: 'No photos found for this user.', data: null};
     } catch (error) {
         console.log(error);
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
@@ -37,20 +53,25 @@ const getUserPhotosData = async (username: string): Promise<ResponseWithMessage<
 
 //user-theme
 const userThemes = userThemeSchemaExport;
-const getUserThemesData = async (username: string): Promise<ResponseWithMessage<IUserThemesData>> => {
+const getUserThemesDataService = async (username: string): Promise<ResponseWithMessage<IUserThemesData>> => {
     try {
-        return { statusCode: 200, success: true, data: await userThemes.findOne({username}) };
+        const userThemesData = await userThemes.findOne({username});
+        if(userThemesData)
+            return {statusCode: 200, success: true, data: userThemesData};
+        else {
+            await new userThemes({username, lights: false}).save();
+            return {statusCode: 200, success: true, data: {username, lights: false}};
+        }
     } catch (error) {
-        console.log();
+        console.log(error);
         return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
     }
 }
 
 
-
 //edit-user-profile-data
 //theme
-const changeUserThemesData = async (username:string): Promise<ResponseWithMessage<IUserThemesData>> => {
+const changeUserThemesDataService = async (username:string): Promise<ResponseWithMessage<IUserThemesData>> => {
     try {
         let data = await userThemes.findOne({username});
 
@@ -130,13 +151,14 @@ const changeUserDateOfBirthDataService=async (username:string, newUserDateOfBirt
 
 
 export {
-    getUsersList,
-    getUserBaseData,
-    getUserPhotosData,
-    getUserThemesData,
+    getUsersListService,
+    getUserBaseDataService,
+    getUserPhotosDataService,
+    getUserThemesDataService,
+    getUserRolesDataService,
     
     //edit-user-profile-data
-    changeUserThemesData,
+    changeUserThemesDataService,
     changeUserNicknameDataService,
     changeUserFirstNameDataService,
     changeUserLastNameDataService,

@@ -1,34 +1,10 @@
-import { userSchemaExport, userRecoveryKeySchemaExport, userAuthLogSchemaExport } from './authModel.js';
-// const bcrypt = require('bcrypt');
-
-import bcrypt from 'bcrypt';
-
+import { userAuthLogSchemaExport } from './authModel.js';
 import {Request, Response, NextFunction} from 'express';
-import { ValidationError } from '../../../types/errors.js';
-import { changeUserPasswordDataService, checkUserRecoveryKeyDataForUserPasswordRecoveryService, getEmptyUser, getNewUserRecoveryKeyForForgettenKeyService, getSessionUserDataService, usernameAvailableControl, usernameAvailableControlForUserPasswordRecoveryService, userPasswordRecoveryService, userSignIn, userSignUp } from './authService.js';
-const user = userSchemaExport;
+import { changeUserPasswordDataService, checkUserRecoveryKeyDataForUserPasswordRecoveryService, getNewUserRecoveryKeyForForgettenKeyService, getSessionUserDataService, usernameAvailableControlService, usernameAvailableControlForUserPasswordRecoveryService, userPasswordRecoveryService, userSignInService, userSignUpService } from './authService.js';
 
-
-
-const signUpGet = (req:Request,res:Response) : any => {
+const usernameControlForUserSignUpController = async (req:Request,res:Response) : Promise<any> => {
     try {
-        return res.status(200).json(getEmptyUser());
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const usernameControlForUserSignUpGet = (req:Request,res:Response) : any => {
-    try {
-        return res.status(200).json({username: ''});
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-const usernameControlForUserSignUpPost = async (req:Request,res:Response) : Promise<any> => {
-    try {
-        const response : ResponseWithMessage<string> = await usernameAvailableControl(req.body.username); 
+        const response : ResponseWithMessage<string> = await usernameAvailableControlService(req.body.username); 
         if (response) return res.status(response.statusCode).json(response);
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     } catch (err) {
@@ -36,9 +12,9 @@ const usernameControlForUserSignUpPost = async (req:Request,res:Response) : Prom
     }
 }
 
-const signUpPost = async (req:Request,res:Response,next:NextFunction) : Promise<any> => {
+const signUpController = async (req:Request,res:Response,next:NextFunction) : Promise<any> => {
     try {
-        const response : ResponseWithMessage<IUser> = await userSignUp(req.body);
+        const response : ResponseWithMessage<IUser> = await userSignUpService(req.body);
         if(response) return res.status(response.statusCode).json(response);
         return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
     } catch (error) {
@@ -47,57 +23,15 @@ const signUpPost = async (req:Request,res:Response,next:NextFunction) : Promise<
 }
 
 //auth
-const login = userAuthLogSchemaExport;
-
-const signInGet = (req:Request, res:Response, next:NextFunction) : any => {
-    try {
-        return res.json(new login({ username: "", password: "" }));
-    } catch (error) {
-        console.log(error);
-    }
-}
-
 //write_service
 // const tokenSecretKey = crypto.randomBytes(32).toString('hex');
-const signInPost = async (req:Request,res:Response,next:NextFunction) : Promise<any> => {  
+const signInController = async (req:Request,res:Response,next:NextFunction) : Promise<any> => {  
     try {
-        // const requestUserLoginData = new login(req.body);
-
-        // const userData = await user.findOne({username: req.body.username});
-    
-        // if (!userData) return res.status(401).json({ error: 'Authentication failed.' });
-
-        // if (!userData.status) return res.status(401).json({ error: 'Authentication failed.' });
-
-        // const passwordMatch = await bcrypt.compare(requestUserLoginData.password, userData.password);
-        
-        // if (!passwordMatch) return res.status(401).json({ error: 'Authentication failed.' });
-
-        // const userLoginData = await login.findOne({username: requestUserLoginData.username});
-        
-        
-
-        // req.session.username = req.body.username;
-
-        // const userRoleData = await require('../usercrud/model').userRolesSchemaExport.findOne({username: req.session.username});
-        // if (userRoleData) {
-        //     req.session.userRoles = userRoleData.roles;
-        //     console.log(req.session.userRoles);
-        // }
-
-        // if(userLoginData){
-        //     userLoginData.token = jwt.sign({ username: userData.username }, tokenSecretKey, { expiresIn: '1h' });
-        //     userLoginData.save(); return res.json(userLoginData);
-
-        // } else {
-        //     const newLogin = new login({username: requestUserLoginData.username, token: jwt.sign({ username: userData.username }, tokenSecretKey, { expiresIn: '1h' })});
-        //     await newLogin.save();
-        //     return res.json(await login.findOne({username: newLogin.username}));
-        // }
-        
-        const userAuthLogData = await userSignIn(req.body);
+        const userAuthLogData = await userSignInService(req.body);
         if (userAuthLogData.success==true && userAuthLogData.data) {
-            req.session.username = userAuthLogData.data.username;
+            if (userAuthLogData.data.username) {
+                req.session.username = userAuthLogData.data.username;
+            }
             return res.status(userAuthLogData.statusCode).json(userAuthLogData);
         } else(userAuthLogData.success==false)
             return res.status(userAuthLogData.statusCode).json(userAuthLogData);
@@ -108,7 +42,7 @@ const signInPost = async (req:Request,res:Response,next:NextFunction) : Promise<
     }
 }
 
-const signOutPost = async (req:Request, res:Response, next:NextFunction):Promise<any> => {
+const signOutController = async (req:Request, res:Response, next:NextFunction):Promise<any> => {
     try {
         req.session.destroy((err) => {
             if (err) {
@@ -124,33 +58,7 @@ const signOutPost = async (req:Request, res:Response, next:NextFunction):Promise
     }
 }
 
-// const getUser = getUserSchemaExport;
-// const getUserData = async (req:Request,res:Response,next:NextFunction) : Promise<any> => {
-//     try {
-//         const getLoggedUserData = await getUser.findOne({ username: req.session.username });
-        
-//         if (getLoggedUserData) {
-//             return res.json(new getUser({ username: getLoggedUserData.username, userFirstName: getLoggedUserData.userFirstName, userLastName: getLoggedUserData.userLastName, userEmail: getLoggedUserData.userEmail, userNickname: getLoggedUserData.userNickname, status: getLoggedUserData.status }));
-//         }
-
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
-
-
-// let loggedUserLoginData : any;
-// const getLoginData = async (req:Request,res:Response,next:NextFunction) : Promise<any> => {
-//     try {        
-//         const getLoggedUserData = await login.findOne({ username: req.session.username });
-//         loggedUserLoginData = getLoggedUserData;
-//         return res.json(getLoggedUserData);
-//     } catch (error) {
-//         console.log(error);
-//     }
-// };
-
-const getSessionUserData = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+const getSessionUserDataController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
         const serviceResponse = await getSessionUserDataService(req.body.username);
         return res.status(serviceResponse.statusCode).json(serviceResponse);
@@ -162,7 +70,7 @@ const getSessionUserData = async (req: Request, res: Response, next: NextFunctio
 
 //edit-profile-data
 //change-password
-const changeUserPasswordDataPost = async (req:Request, res:Response): Promise<any> => {
+const changeUserPasswordDataController = async (req:Request, res:Response): Promise<any> => {
     try {
         const response : ResponseWithMessage<boolean> = await changeUserPasswordDataService(req.body.username, req.body.oldUserPassword, req.body.newUserPassword);
         return res.status(response.statusCode).json(response);
@@ -173,7 +81,7 @@ const changeUserPasswordDataPost = async (req:Request, res:Response): Promise<an
 }
 
 //password-recovery
-const userPasswordRecoveryPost = async (req:Request, res:Response, next:NextFunction): Promise<any> => {
+const userPasswordRecoveryController = async (req:Request, res:Response, next:NextFunction): Promise<any> => {
     try {
         const response : ResponseWithMessage<string> = await userPasswordRecoveryService(req.body.username, req.body.key, req.body.userNewPassword);
 
@@ -184,7 +92,7 @@ const userPasswordRecoveryPost = async (req:Request, res:Response, next:NextFunc
     }
 }
 
-const usernameAvailableControlForUserPasswordRecoveryPost = async (req:Request, res:Response, next:NextFunction):Promise<any> => {
+const usernameAvailableControlForUserPasswordRecoveryController = async (req:Request, res:Response, next:NextFunction):Promise<any> => {
     try {
         const response = await usernameAvailableControlForUserPasswordRecoveryService(req.body.username);
 
@@ -195,7 +103,7 @@ const usernameAvailableControlForUserPasswordRecoveryPost = async (req:Request, 
     }
 }
 
-const checkUserRecoveryKeyDataForUserPasswordRecoveryPost = async (req:Request, res:Response, next:NextFunction):Promise<any> => {
+const checkUserRecoveryKeyDataForUserPasswordRecoveryController = async (req:Request, res:Response, next:NextFunction):Promise<any> => {
     try {
         const response = await checkUserRecoveryKeyDataForUserPasswordRecoveryService(req.body.username, req.body.key);
 
@@ -206,7 +114,7 @@ const checkUserRecoveryKeyDataForUserPasswordRecoveryPost = async (req:Request, 
     }
 }
 
-const getNewUserRecoveryKeyForForgettenKeyPost = async (req:Request, res:Response):Promise<any> => {
+const getNewUserRecoveryKeyForForgettenKeyController = async (req:Request, res:Response):Promise<any> => {
     try {
         const response = await getNewUserRecoveryKeyForForgettenKeyService(req.body.username);
         return res.status(response.statusCode).json(response);
@@ -219,21 +127,18 @@ const getNewUserRecoveryKeyForForgettenKeyPost = async (req:Request, res:Respons
 
 
 export {
-    signUpGet,
-    signUpPost,
-    signInGet,
-    signInPost,
-    signOutPost,
+    signUpController,
+    signInController,
+    signOutController,
     // getUserData,
     // tokenSecretKey,
     // getLoginData,
     // loggedUserLoginData,
-    usernameControlForUserSignUpGet,
-    usernameControlForUserSignUpPost,
-    getSessionUserData,
-    changeUserPasswordDataPost,
-    userPasswordRecoveryPost,
-    usernameAvailableControlForUserPasswordRecoveryPost,
-    checkUserRecoveryKeyDataForUserPasswordRecoveryPost,
-    getNewUserRecoveryKeyForForgettenKeyPost
+    usernameControlForUserSignUpController,
+    getSessionUserDataController,
+    changeUserPasswordDataController,
+    userPasswordRecoveryController,
+    usernameAvailableControlForUserPasswordRecoveryController,
+    checkUserRecoveryKeyDataForUserPasswordRecoveryController,
+    getNewUserRecoveryKeyForForgettenKeyController
 }
