@@ -53,8 +53,14 @@ const blogPostSchema : Schema<IBlogPost> = new Schema<IBlogPost>({
         trim: true,
     },
     categoryID: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: [true, 'Category is required.'],
+        trim: true,
+    },
+    viewCount: {
+        type: Number,
+        default: 0,
+        required: [true, 'View count is required.'],
         trim: true,
     },
     status: {
@@ -84,9 +90,9 @@ blogPostSchema.pre('save', async function (next) {
 const blogPostSchemaExport : Model<IBlogPost> = model('blogPost', blogPostSchema, 'blogPosts');
 
 const blogPostVoteSchema : Schema<IBlogPostVote> = new Schema<IBlogPostVote>({
-    blogID: {
-        type: String,
-        required: [true, 'Blog ID is required.'],
+    blogPostID: {
+        type: Schema.Types.ObjectId,
+        required: [true, 'Blog post ID is required.'],
         trim: true,
     },
     username: {
@@ -101,7 +107,7 @@ const blogPostVoteSchema : Schema<IBlogPostVote> = new Schema<IBlogPostVote>({
     }
 }, { timestamps: true });
 
-blogPostVoteSchema.index({ blogID: 1, username: 1 }, { unique: true });
+blogPostVoteSchema.index({ blogPostID: 1, username: 1 }, { unique: true });
 const blogPostVoteSchemaExport : Model<IBlogPostVote> = model('blogPostVote', blogPostVoteSchema, 'blogPostVotes');
 
 export {

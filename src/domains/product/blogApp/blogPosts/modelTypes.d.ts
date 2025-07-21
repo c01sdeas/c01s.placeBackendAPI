@@ -1,11 +1,12 @@
+import {Document, Types} from "mongoose";
 
-interface ISubscribeToNews {
+interface ISubscribeToNews extends Document {
     email: string;
     createdAt: Date;
     updatedAt: Date;
 }
 
-interface IBlogPost {
+interface IBlogPost extends Document {
     slug: string;
     image: string;
     readingTime: string;
@@ -13,23 +14,32 @@ interface IBlogPost {
     title: string;
     intro: string;
     content: string;
-    categoryID: string;
+    categoryID: Types.ObjectId;
     status: boolean;
+    viewCount: number;
     username: string;
     createdAt: Date;
     updatedAt: Date;
 }
 
-interface IBlogPostVote {
-    blogID: string;
+interface IBlogPostVote extends Document {
+    blogPostID: Types.ObjectId;
     username: string;
     vote: number;
     createdAt: Date;
     updatedAt: Date;
 }
 
+interface IBlogPostViewLog extends Document {
+    blogPostID: Types.ObjectId; // Which blog post was viewed
+    viewerIp: string;                      // Viewer's IP address (for spam control)
+    userId?: Types.ObjectId; // If user is logged in, ID
+    viewedAt: Date;                        // Viewed time
+}
+
 export type {
     ISubscribeToNews,
     IBlogPost,
-    IBlogPostVote
+    IBlogPostVote,
+    IBlogPostViewLog
 }

@@ -4,4 +4,5 @@ interface ResponseWithMessage<T> {
     message?: string;
     error?: unknown | Error | undefined;
     statusCode: number;
+    totalRecords?: number;
 }

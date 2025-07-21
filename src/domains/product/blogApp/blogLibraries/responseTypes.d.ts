@@ -4,6 +4,7 @@ interface IBlogLibraryResponseDto {
     description: string;
     status: boolean;
     username: string;
+    blogPostInLibraryID: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -29,7 +30,26 @@ interface IBlogPostInLibraryResponseDto {
     voteCount: number;
 }
 
+//followingTags
+interface IFollowingTagResponseDto {
+    id: string;
+    tagID: string;
+    tagTitle: string;
+    tagSlug: string;
+    tagMeta: string;
+    tagDescription: string;
+    tagImage: string;
+    tagStatus: boolean;
+    tagUsername: string;
+    tagUserNickname: string;
+    username: string;
+    status: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export type {
     IBlogLibraryResponseDto,
-    IBlogPostInLibraryResponseDto
+    IBlogPostInLibraryResponseDto,
+    IFollowingTagResponseDto
 }

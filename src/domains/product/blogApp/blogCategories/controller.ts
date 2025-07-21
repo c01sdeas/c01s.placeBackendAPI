@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { createNewBlogPostCategoryImageService, createNewBlogPostCategoryService, deleteBlogPostCategoryService, getAllBlogPostCategoriesService, getBlogPostCategoryBySlugService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryMetaService, updateBlogPostCategoryStatusService, updateBlogPostCategoryTitleService } from "./service.js";
+import { createNewBlogPostCategoryImageService, createNewBlogPostCategoryService, deleteBlogPostCategoryService, getAllBlogPostCategoriesByUsernameService, getAllBlogPostCategoriesService, getBlogPostCategoryBySlugService, updateBlogPostCategoryDescriptionService, updateBlogPostCategoryImageService, updateBlogPostCategoryMetaService, updateBlogPostCategoryStatusService, updateBlogPostCategoryTitleService } from "./service.js";
+import { IGetAllBlogPostCategoriesByUsernameRequestDto, IGetAllBlogPostCategoriesRequestDto, IGetBlogPostCategoryBySlugRequestDto } from "./requestTypes.js";
 
 //blogCategoryCUD
 const createNewBlogCategoryImageController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
@@ -23,7 +24,7 @@ const createNewBlogCategoryController = async (req:Request, res:Response, next:N
         if (uploadedFile) {
             req.body.image = uploadedFile.filename;
         }
-        req.body.username = req.session?.username;
+        if(!req.body.username || req.body.username === undefined || req.body.username === null || req.body.username === '') req.body.username = req.session?.username;
         const response = await createNewBlogPostCategoryService(req.body);
         return res.status(response.statusCode).json(response);
     } catch (error) {
@@ -49,7 +50,7 @@ const updateBlogCategoryImageController = async (req:Request, res:Response, next
         } else {
             return res.status(400).json({ success: false, message: 'No file uploaded.', statusCode: 400 });
         }
-        req.body.username = req.session?.username;
+        if(!req.body.username || req.body.username === undefined || req.body.username === null || req.body.username === '') req.body.username = req.session?.username;
         const response = await updateBlogPostCategoryImageService(req.body);
         return res.status(response.statusCode).json(response);
     } catch (error) {
@@ -94,9 +95,15 @@ const deleteBlogCategoryController = async (req:Request, res:Response, next:Next
     }
 }
 //blogCategoryRead
-const getAllBlogCategoriesController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
+const getAllBlogPostCategoriesController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getAllBlogPostCategoriesService(req.body);
+        if(!req.body.username || req.body.username === undefined || req.body.username === null || req.body.username === '') req.body.requestUsername = req.session?.username;
+        const data = {
+            requestUsername: req.body.requestUsername,
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetAllBlogPostCategoriesRequestDto;
+        const response = await getAllBlogPostCategoriesService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -105,7 +112,30 @@ const getAllBlogCategoriesController = async (req:Request, res:Response, next:Ne
 }
 const getBlogPostCategoryBySlugController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getBlogPostCategoryBySlugService(req.body);
+        if(!req.body.username || req.body.username === undefined || req.body.username === null || req.body.username === '') req.body.requestUsername = req.session?.username;
+        const data = {
+            requestUsername: req.body.requestUsername,
+            slug: req.query.slug,
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetBlogPostCategoryBySlugRequestDto;
+        const response = await getBlogPostCategoryBySlugService(data);
+        return res.status(response.statusCode).json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
+    }
+}
+const getAllBlogPostCategoriesByUsernameController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
+    try {
+        if(!req.body.username || req.body.username === undefined || req.body.username === null || req.body.username === '') req.body.requestUsername = req.session?.username;
+        const data = {
+            requestUsername: req.body.requestUsername,
+            username: req.body.username,
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetAllBlogPostCategoriesByUsernameRequestDto;
+        const response = await getAllBlogPostCategoriesByUsernameService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -123,6 +153,7 @@ export {
     updateBlogCategoryMetaController,
     updateBlogCategoryDescriptionController,
     deleteBlogCategoryController,
-    getAllBlogCategoriesController,
-    getBlogPostCategoryBySlugController
+    getAllBlogPostCategoriesController,
+    getBlogPostCategoryBySlugController,
+    getAllBlogPostCategoriesByUsernameController
 }

@@ -34,17 +34,17 @@ interface IUpdateBlogPostIntroRequestDto {
 }
 
 interface IUpdateBlogPostUserVotesRequestDto {
-    blogID: string;
+    blogPostID: string;
     username: string;
     vote: number;
 }
 
 interface IGetBlogPostVotesRequestDto {
-    blogID: string;
+    blogPostID: string;
 }
 
 interface IGetBlogPostUserVoteControlRequestDto {
-    blogID: string;
+    blogPostID: string;
     username: string;
 }
 
@@ -53,6 +53,12 @@ interface IUpdateBlogPostStatusRequestDto {
 }
 
 interface IGetAllBlogPostsRequestDto {
+    page: number;
+    limit: number;
+}
+
+interface IGetAllBlogPostsByUsernameForLibraryRequestDto {
+    username: string;
     page: number;
     limit: number;
 }
@@ -90,6 +96,14 @@ interface ISubscribeToNewsRequestDto {
     email: string;
 }
 
+interface ISearchInBlogPostsRequestDto {
+    data: string;
+}
+
+interface IUpdateBlogPostViewCountRequestDto {
+    id: string;
+}
+
 export type {
     ICreateNewBlogPostRequestDto,
     IUpdateBlogPostTitleRequestDto,
@@ -102,10 +116,13 @@ export type {
     IGetBlogPostUserVoteControlRequestDto,
     IUpdateBlogPostStatusRequestDto,
     IGetAllBlogPostsRequestDto,
+    IGetAllBlogPostsByUsernameForLibraryRequestDto,
     IGetBlogPostBySlugRequestDto,
     IGetBlogPostByCategoryIDRequestDto,
     IGetBlogPostByCategorySlugRequestDto,
     IGetBlogPostByUsernameRequestDto,
     IGetBlogPostByUsernameAndCategoryIDRequestDto,
     ISubscribeToNewsRequestDto,
+    ISearchInBlogPostsRequestDto,
+    IUpdateBlogPostViewCountRequestDto,
 }

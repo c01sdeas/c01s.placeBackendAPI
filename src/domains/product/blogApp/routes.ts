@@ -2,96 +2,125 @@ import uploadImageMiddleware from "../../../middlewares/blogAppMiddlewares/uploa
 import adminCrudMiddleware from "../../../middlewares/crudMiddlewares/adminCrudMiddleware.js";
 import authCrudMiddleware from "../../../middlewares/crudMiddlewares/authCrudMiddleware.js";
 import userCrudMiddleware from "../../../middlewares/crudMiddlewares/userCrudMiddleware.js";
-import { getAllBlogPostsByCategorySlugController, getBlogPostUserVoteControlController, getBlogPostVoteCountController } from "./blogPosts/controller.js";
+import { getAllBlogPostsByCategorySlugController, getBlogPostUserVoteControlController, getBlogPostVoteCountController, searchInBlogPostsController, updateBlogPostViewCountController } from "./blogPosts/controller.js";
 import express from 'express';
 import { createNewBlogPostController, deleteBlogPostController, getAllBlogPostsByUsernameAndCategoryIDController, getAllBlogPostsByCategoryIDController, getAllBlogPostsByUsernameController, getAllBlogPostsController, getBlogPostBySlugController, updateBlogPostContentController, updateBlogPostImageController, updateBlogPostIntroController, updateBlogPostMetaController, updateBlogPostStatusController, updateBlogPostTitleController, createNewBlogPostImageController, subscribeToNewsController, updateBlogPostVoteController, getBlogPostVotesController } from "./blogPosts/controller.js";
-import { createNewBlogCategoryController, createNewBlogCategoryImageController, deleteBlogCategoryController, getAllBlogCategoriesController, getBlogPostCategoryBySlugController, updateBlogCategoryDescriptionController, updateBlogCategoryImageController, updateBlogCategoryTitleController } from "./blogCategories/controller.js";
-import { createNewBlogLibraryController, createNewBlogPostInLibraryController, deleteBlogLibraryController, deleteBlogPostInLibraryController, getAllBlogLibrariesByUsernameController, updateBlogLibraryDescriptionController, updateBlogLibraryStatusController, updateBlogLibraryTitleController, updateBlogPostInLibraryController, updateBlogPostInLibraryStatusController } from "./blogLibraries/controller.js";
+import { createNewBlogCategoryController, createNewBlogCategoryImageController, deleteBlogCategoryController, getAllBlogPostCategoriesByUsernameController, getAllBlogPostCategoriesController, getBlogPostCategoryBySlugController, updateBlogCategoryDescriptionController, updateBlogCategoryImageController, updateBlogCategoryMetaController, updateBlogCategoryStatusController, updateBlogCategoryTitleController } from "./blogCategories/controller.js";
+import { createNewBlogLibraryController, createNewBlogPostInLibraryController, createNewFollowingTagController, deleteBlogLibraryController, deleteBlogPostInLibraryController, deleteFollowingTagController, getAllBlogLibrariesByUsernameController, getAllBlogPostsByFollowingTagsController, getAllBlogPostsByUsernameForLibraryController, getAllBlogPostsInLibraryController, getAllFollowingTagsByUsernameController, getAllFollowingTagsController, updateBlogLibraryDescriptionController, updateBlogLibraryStatusController, updateBlogLibraryTitleController, updateBlogPostInLibraryController, updateBlogPostInLibraryStatusController, updateFollowingTagStatusController } from "./blogLibraries/controller.js";
 
 const router = express.Router();
 
 //blogPosts
 router.post('/create-new-blog-post', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], createNewBlogPostController);
 
-router.post('/delete-blog-post', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], deleteBlogPostController);
+router.delete('/delete-blog-post', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], deleteBlogPostController);
 
-router.post('/update-blog-post-title', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostTitleController);
+router.patch('/update-blog-post-title', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostTitleController);
 
-router.post('/update-blog-post-meta', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostMetaController);
+router.patch('/update-blog-post-meta', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostMetaController);
 
-router.post('/update-blog-post-intro', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostIntroController);
+router.patch('/update-blog-post-intro', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostIntroController);
 
-router.post('/update-blog-post-status', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostStatusController);
+router.patch('/update-blog-post-status', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostStatusController);
 
-router.post('/update-blog-post-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostImageController);
+router.patch('/update-blog-post-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostImageController);
 
-router.post('/update-blog-post-content', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostContentController);
+router.patch('/update-blog-post-content', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostContentController);
 
-router.post('/create-new-blog-post-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], uploadImageMiddleware.single('image'), createNewBlogPostImageController);
+router.post('/create-new-blog-post-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], uploadImageMiddleware('blog').single('image'), createNewBlogPostImageController);
 
-router.post('/update-blog-post-vote', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateBlogPostVoteController);
+router.patch('/update-blog-post-vote', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateBlogPostVoteController);
 
-router.post('/get-blog-post-votes', getBlogPostVotesController);
+router.patch('/update-blog-post-view-count', updateBlogPostViewCountController);
 
-router.post('/get-blog-post-vote-count', getBlogPostVoteCountController);
+router.get('/get-blog-post-votes', getBlogPostVotesController);
 
-router.post('/get-blog-post-user-vote-control', getBlogPostUserVoteControlController);
+router.get('/get-blog-post-vote-count', getBlogPostVoteCountController);
 
-router.post('/get-all-blog-posts', getAllBlogPostsController);
+router.get('/get-blog-post-user-vote-control', getBlogPostUserVoteControlController);
 
-router.post('/get-blog-post-by-slug/:slug', getBlogPostBySlugController);//slug
+router.get('/get-all-blog-posts', getAllBlogPostsController);
 
-router.post('/get-all-blog-posts-by-category-id', getAllBlogPostsByCategoryIDController);
+router.get('/get-blog-post-by-slug', getBlogPostBySlugController);//slug
 
-router.post('/get-all-blog-posts-by-category-slug', getAllBlogPostsByCategorySlugController);//slug
+router.get('/get-all-blog-posts-by-category-id', getAllBlogPostsByCategoryIDController);
 
-router.post('/get-all-blog-posts-by-username', getAllBlogPostsByUsernameController);
+router.get('/get-all-blog-posts-by-category-slug', getAllBlogPostsByCategorySlugController);//slug
 
-router.post('/get-all-blog-posts-by-username-and-category-id', getAllBlogPostsByUsernameAndCategoryIDController);
+router.get('/get-all-blog-posts-by-username', getAllBlogPostsByUsernameController);
+
+router.get('/get-all-blog-posts-by-username-and-category-id', getAllBlogPostsByUsernameAndCategoryIDController);
+
+router.get('/search-in-blog-posts', searchInBlogPostsController);
 
 
 //blogCategories
-router.post('/create-new-blog-category-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], uploadImageMiddleware.single('tagImage'), createNewBlogCategoryImageController);
+router.post('/create-new-blog-category-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], uploadImageMiddleware('tag').single('image'), createNewBlogCategoryImageController);
 
 router.post('/create-new-blog-category', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], createNewBlogCategoryController);
 
-router.post('/delete-blog-category', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], deleteBlogCategoryController);
+router.delete('/delete-blog-category', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], deleteBlogCategoryController);
 
-router.post('/update-blog-category-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], uploadImageMiddleware.single('image'), updateBlogCategoryImageController);
+router.patch('/update-blog-category-meta', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogCategoryMetaController);
 
-router.post('/update-blog-category-description', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogCategoryDescriptionController);
+router.patch('/update-blog-category-status', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogCategoryStatusController);
 
-router.post('/update-blog-category-title', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogCategoryTitleController);
+router.patch('/update-blog-category-image', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], uploadImageMiddleware('tag').single('image'), updateBlogCategoryImageController);
 
-router.post('/get-all-blog-categories', getAllBlogCategoriesController);
+router.patch('/update-blog-category-description', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogCategoryDescriptionController);
 
-router.post('/get-blog-post-category-by-slug', getBlogPostCategoryBySlugController);
+router.patch('/update-blog-category-title', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogCategoryTitleController);
+
+router.get('/get-all-blog-categories', getAllBlogPostCategoriesController);
+
+router.get('/get-blog-post-category-by-slug', getBlogPostCategoryBySlugController);
+
+router.get('/get-all-blog-categories-by-username', getAllBlogPostCategoriesByUsernameController);
 
 //subscribeToNews
 router.post('/subscribe-to-news', subscribeToNewsController);
 
+
+
 //blogLibraries
-router.post('/create-new-blog-library', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], createNewBlogLibraryController);
+router.post('/create-new-blog-library', [authCrudMiddleware([]), userCrudMiddleware(['user'])], createNewBlogLibraryController);
 
-router.post('/update-blog-library-title', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogLibraryTitleController);
+router.patch('/update-blog-library-title', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateBlogLibraryTitleController);
 
-router.post('/update-blog-library-description', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogLibraryDescriptionController);
+router.patch('/update-blog-library-description', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateBlogLibraryDescriptionController);
 
-router.post('/update-blog-library-status', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogLibraryStatusController);
+router.patch('/update-blog-library-status', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateBlogLibraryStatusController);
 
-router.post('/delete-blog-library', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], deleteBlogLibraryController);
+router.delete('/delete-blog-library', [authCrudMiddleware([]), userCrudMiddleware(['user'])], deleteBlogLibraryController);
 
-router.post('/get-all-blog-libraries-by-username', [authCrudMiddleware([]), userCrudMiddleware(['user'])], getAllBlogLibrariesByUsernameController);
+router.get('/get-all-blog-libraries-by-username', [authCrudMiddleware([]), userCrudMiddleware(['user'])], getAllBlogLibrariesByUsernameController);
+
+router.get('/get-all-blog-posts-by-username-for-library', [authCrudMiddleware([]), userCrudMiddleware(['user'])], getAllBlogPostsByUsernameForLibraryController);
 
 
 //blogPostsInLibraries
-router.post('/create-new-blog-post-in-library', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], createNewBlogPostInLibraryController);
+router.post('/create-new-blog-post-in-library', [authCrudMiddleware([]), userCrudMiddleware(['user'])], createNewBlogPostInLibraryController);
 
-router.post('/update-blog-post-in-library', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostInLibraryController);
+router.patch('/update-blog-post-in-library', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateBlogPostInLibraryController);
 
-router.post('/update-blog-post-in-library-status', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], updateBlogPostInLibraryStatusController);
+router.patch('/update-blog-post-in-library-status', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateBlogPostInLibraryStatusController);
 
-router.post('/delete-blog-post-in-library', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], deleteBlogPostInLibraryController);
+router.delete('/delete-blog-post-in-library', [authCrudMiddleware([]), userCrudMiddleware(['user'])], deleteBlogPostInLibraryController);
+
+router.get('/get-all-blog-posts-in-library', [authCrudMiddleware([]), userCrudMiddleware(['user'])], getAllBlogPostsInLibraryController);
+
+//followingTags
+router.post('/create-new-following-tag', [authCrudMiddleware([]), userCrudMiddleware(['user'])], createNewFollowingTagController);
+
+router.delete('/delete-following-tag', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], deleteFollowingTagController);
+
+router.patch('/update-following-tag-status', [authCrudMiddleware([]), userCrudMiddleware(['user'])], updateFollowingTagStatusController);
+
+router.get('/get-all-following-tags-by-username', [authCrudMiddleware([]), userCrudMiddleware(['user'])], getAllFollowingTagsByUsernameController);
+
+router.get('/get-all-blog-posts-by-following-tags', [authCrudMiddleware([]), userCrudMiddleware(['user'])], getAllBlogPostsByFollowingTagsController);
+
+router.get('/get-all-following-tags', [authCrudMiddleware([]), userCrudMiddleware(['user']), adminCrudMiddleware(['moderator'])], getAllFollowingTagsController);
 
 
 

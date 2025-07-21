@@ -21,7 +21,7 @@ const userCrudMiddleware = (requiredRole: string[]) => {
                         return res.status(500).json({ error: 'Session is not initialized' });
                       }
                     if (err) {return res.status(401).json({error:'Session has expired.'});}
-                    if (req.session.username) {
+                    if (req.session.username && req.session.username !== null && req.session.username !== undefined) {
                         getLoggedUserData = await authLog.findOne({ username: token.username });
                         
     
@@ -32,9 +32,9 @@ const userCrudMiddleware = (requiredRole: string[]) => {
                             return res.status(401).json({ error: 'Access denied.' });
                         
                         
-                        if(getLoggedUserData && getLoggedUserData.username){
+                        if(getLoggedUserData && getLoggedUserData.username && getLoggedUserData.username !== null && getLoggedUserData.username !== undefined){
                             const userRolesData = await userRoles.findOne({username: getLoggedUserData.username});                            
-                            if (userRolesData && userRolesData.roles) {
+                            if (userRolesData && userRolesData.roles && userRolesData.roles !== null && userRolesData.roles !== undefined) {
 
                                  let permissionControl:boolean=false;
                                 userRolesData.roles.forEach(element => {

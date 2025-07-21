@@ -7,6 +7,7 @@ interface IBlogCategoryListResponseDto {
     status: boolean;
     username: string;
     userNickname: string;
+    isFollowing?: boolean;
     description: string;
     createdAt: Date;
     updatedAt: Date;

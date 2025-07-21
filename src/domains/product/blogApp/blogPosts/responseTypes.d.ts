@@ -17,11 +17,12 @@ interface IBlogListResponseDto {
     createdAt: Date;
     updatedAt: Date;
     voteCount: number;
+    viewCount: number;
 }
 
 interface IVoteResponseDto {
     id: string;
-    blogID: string;
+    blogPostID: string;
     username: string;
     vote: number;
     createdAt: Date;

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { createNewBlogPostImageService, createNewBlogPostService, deleteBlogPostService, getAllBlogPostsService, getAllBlogPostsByCategoryIDService, getBlogPostBySlugService, updateBlogPostContentService, updateBlogPostImageService, updateBlogPostIntroService, updateBlogPostMetaService, updateBlogPostStatusService, updateBlogPostTitleService, getAllBlogPostsByUsernameService, getAllBlogPostsByUsernameAndCategoryIDService, getAllBlogPostsByCategorySlugService, subscribeToNewsService, updateBlogPostVoteService, getBlogPostVotesService, getBlogPostVoteCountService, getBlogPostUserVoteControlService } from "./service.js";
+import { createNewBlogPostImageService, createNewBlogPostService, deleteBlogPostService, getAllBlogPostsService, getAllBlogPostsByCategoryIDService, getBlogPostBySlugService, updateBlogPostContentService, updateBlogPostImageService, updateBlogPostIntroService, updateBlogPostMetaService, updateBlogPostStatusService, updateBlogPostTitleService, getAllBlogPostsByUsernameService, getAllBlogPostsByUsernameAndCategoryIDService, getAllBlogPostsByCategorySlugService, subscribeToNewsService, updateBlogPostVoteService, getBlogPostVotesService, getBlogPostVoteCountService, getBlogPostUserVoteControlService, searchInBlogPostsService, updateBlogPostViewCountService } from "./service.js";
+import { IGetAllBlogPostsRequestDto, IGetBlogPostByCategoryIDRequestDto, IGetBlogPostByCategorySlugRequestDto, IGetBlogPostBySlugRequestDto, IGetBlogPostByUsernameAndCategoryIDRequestDto, IGetBlogPostByUsernameRequestDto, IGetBlogPostUserVoteControlRequestDto, IGetBlogPostVotesRequestDto, ISearchInBlogPostsRequestDto } from "./requestTypes.js";
 
 //subscribeToNews
 const subscribeToNewsController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
@@ -15,7 +16,8 @@ const subscribeToNewsController = async (req:Request, res:Response, next:NextFun
 //blogPostCUD
 const createNewBlogPostImageController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await createNewBlogPostImageService(req.body);
+        const filePath = `/uploads/blogApp/blog-images/${req.file?.filename}`;
+        const response = await createNewBlogPostImageService(filePath);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -35,7 +37,7 @@ const createNewBlogPostController = async (req:Request, res:Response, next:NextF
 
 const deleteBlogPostController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await deleteBlogPostService(req.body);
+        const response = await deleteBlogPostService(req.body.id);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -75,7 +77,10 @@ const updateBlogPostVoteController = async (req:Request, res:Response, next:Next
 
 const getBlogPostVotesController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getBlogPostVotesService(req.body);
+        const data = {
+            blogPostID: req.query.blogPostID
+        } as IGetBlogPostVotesRequestDto;
+        const response = await getBlogPostVotesService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -85,7 +90,10 @@ const getBlogPostVotesController = async (req:Request, res:Response, next:NextFu
 
 const getBlogPostVoteCountController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getBlogPostVoteCountService(req.body);
+        const data = {
+            blogPostID: req.query.blogPostID
+        } as IGetBlogPostVotesRequestDto;
+        const response = await getBlogPostVoteCountService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -95,8 +103,11 @@ const getBlogPostVoteCountController = async (req:Request, res:Response, next:Ne
 
 const getBlogPostUserVoteControlController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        req.body.username = req.session?.username;
-        const response = await getBlogPostUserVoteControlService(req.body);
+        const data = {
+            blogPostID: req.query.blogPostID,
+            username: req.session?.username
+        } as IGetBlogPostUserVoteControlRequestDto;
+        const response = await getBlogPostUserVoteControlService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -141,10 +152,24 @@ const updateBlogPostTitleController = async (req:Request, res:Response, next:Nex
     }
 }
 
+const updateBlogPostViewCountController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
+    try {
+        const response = await updateBlogPostViewCountService(req.body);
+        return res.status(response.statusCode).json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
+    }
+}
+
 //blogPostRead
 const getAllBlogPostsController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getAllBlogPostsService(req.body);
+        const data = {
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetAllBlogPostsRequestDto;
+        const response = await getAllBlogPostsService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -154,7 +179,10 @@ const getAllBlogPostsController = async (req:Request, res:Response, next:NextFun
 
 const getBlogPostBySlugController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getBlogPostBySlugService(req.body);
+        const data = {
+            slug: req.query.slug
+        } as IGetBlogPostBySlugRequestDto;
+        const response = await getBlogPostBySlugService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -164,7 +192,12 @@ const getBlogPostBySlugController = async (req:Request, res:Response, next:NextF
 
 const getAllBlogPostsByCategoryIDController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getAllBlogPostsByCategoryIDService(req.body);
+        const data = {
+            categoryID: req.query.categoryID,
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetBlogPostByCategoryIDRequestDto;
+        const response = await getAllBlogPostsByCategoryIDService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -174,7 +207,12 @@ const getAllBlogPostsByCategoryIDController = async (req:Request, res:Response, 
 
 const getAllBlogPostsByCategorySlugController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getAllBlogPostsByCategorySlugService(req.body);
+        const data = {
+            slug: req.query.slug,
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetBlogPostByCategorySlugRequestDto;
+        const response = await getAllBlogPostsByCategorySlugService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -184,7 +222,12 @@ const getAllBlogPostsByCategorySlugController = async (req:Request, res:Response
 
 const getAllBlogPostsByUsernameController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getAllBlogPostsByUsernameService(req.body);
+        const data = {
+            username: req.query.username,
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetBlogPostByUsernameRequestDto;
+        const response = await getAllBlogPostsByUsernameService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -194,7 +237,26 @@ const getAllBlogPostsByUsernameController = async (req:Request, res:Response, ne
 
 const getAllBlogPostsByUsernameAndCategoryIDController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
     try {
-        const response = await getAllBlogPostsByUsernameAndCategoryIDService(req.body);
+        const data = {
+            username: req.query.username,
+            categoryID: req.query.categoryID,
+            page: Number(req.query.page),
+            limit: Number(req.query.limit)
+        } as IGetBlogPostByUsernameAndCategoryIDRequestDto;
+        const response = await getAllBlogPostsByUsernameAndCategoryIDService(data);
+        return res.status(response.statusCode).json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Unknown error.', statusCode: 500 });
+    }
+}
+
+const searchInBlogPostsController = async (req:Request, res:Response, next:NextFunction):Promise<any>=> {
+    try {
+        const data = {
+            data: req.query.data
+        } as ISearchInBlogPostsRequestDto;
+        const response = await searchInBlogPostsService(data);
         return res.status(response.statusCode).json(response);
     } catch (error) {
         console.log(error);
@@ -210,6 +272,7 @@ export {
     updateBlogPostMetaController,
     updateBlogPostIntroController,
     updateBlogPostVoteController,
+    updateBlogPostViewCountController,
     getBlogPostVotesController,
     getBlogPostVoteCountController,
     getBlogPostUserVoteControlController,
@@ -224,7 +287,7 @@ export {
     getAllBlogPostsByUsernameController,
     getAllBlogPostsByUsernameAndCategoryIDController,
     getAllBlogPostsByCategorySlugController,
-    
+    searchInBlogPostsController,
 
     //subscribeToNews
     subscribeToNewsController

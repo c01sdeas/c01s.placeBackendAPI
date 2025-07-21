@@ -7,13 +7,13 @@ const logMiddleware = (req:Request, res:Response, next:NextFunction) => {
 
   // logger.info(`Request: ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}`);
 
-  const reqData = (`Request: ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}, - User: ${req.session.username}`);
+  const reqData = (`${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}, - User: ${req.session.username} - ip: ${req.ip}`);
 
   let resData = undefined;
 
   res.on('finish', () => {    
     const duration = Date.now() - startTime;
-    resData = (`Response: ${req.method} ${req.url} - Status: ${res.statusCode} - Duration: ${duration}ms`);
+    resData = (`Status: ${res.statusCode} - Duration: ${duration}ms`);
     logger.info({request: reqData, response: resData});
   });
 

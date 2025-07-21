@@ -1,3 +1,6 @@
+import { Types } from "mongoose";
+
+//blogLibraries
 interface ICreateNewBlogLibraryRequestDto {
     title: string;
     description: string;
@@ -5,42 +8,77 @@ interface ICreateNewBlogLibraryRequestDto {
 }
 
 interface IUpdateBlogLibraryTitleRequestDto {
-    id: string;
+    id: Types.ObjectId;
     title: string;
 }
 interface IUpdateBlogLibraryDescriptionRequestDto {
-    id: string;
+    id: Types.ObjectId;
     description: string;
 }
 interface IUpdateBlogLibraryStatusRequestDto {
-    id: string;
-    status: boolean;
+    id: Types.ObjectId;
 }
 
 interface IDeleteBlogLibraryRequestDto {
-    id: string;
+    id: Types.ObjectId;
 }
 
 interface IGetAllBlogLibrariesRequestDto {
     username?: string;
+    blogPostID?: Types.ObjectId;
 }
 
-
+//blogPostsInLibrary
 interface ICreateNewBlogPostInLibraryRequestDto {
-    blogID: string;
-    libraryID: string;
+    blogPostID: Types.ObjectId;
+    libraryID: Types.ObjectId;
 }
 
 interface IUpdateBlogPostInLibraryRequestDto {
-    id: string;
-    blogID: string;
-    libraryID: string;
+    id: Types.ObjectId;
+    blogPostID: Types.ObjectId;
+    libraryID: Types.ObjectId;
 }
 interface IDeleteBlogPostInLibraryRequestDto {
-    id: string;
+    blogPostID: Types.ObjectId;
+    libraryID: Types.ObjectId;
 }
 interface IGetAllBlogPostsInLibraryRequestDto {
-    libraryID: string;
+    libraryID: Types.ObjectId;
+    page: number;
+    limit: number;
+}
+interface IUpdateBlogPostInLibraryStatusRequestDto {
+    blogPostID: Types.ObjectId;
+    libraryID: Types.ObjectId;
+    status: boolean;
+}
+
+
+//followingTags
+interface ICreateNewFollowingTagRequestDto {
+    tagID: Types.ObjectId;
+    requestUsername: string;
+}
+interface IUpdateFollowingTagRequestDto {
+    id: Types.ObjectId;
+    tagID: Types.ObjectId;
+    requestUsername: string;
+}
+interface IDeleteFollowingTagRequestDto {
+    id: Types.ObjectId;
+}
+interface IGetAllFollowingTagsByUsernameRequestDto {
+    username: string;
+}
+interface IUpdateFollowingTagStatusRequestDto {
+    tagID: Types.ObjectId;
+    requestUsername: string;
+}
+interface IGetAllBlogPostsByFollowingTagsRequestDto {
+    username: string;
+    page: number;
+    limit: number;
 }
 
 export type {
@@ -52,5 +90,13 @@ export type {
     IUpdateBlogPostInLibraryRequestDto,
     IDeleteBlogLibraryRequestDto,
     IDeleteBlogPostInLibraryRequestDto,
-    IGetAllBlogLibrariesRequestDto
+    IGetAllBlogLibrariesRequestDto,
+    IGetAllBlogPostsInLibraryRequestDto,
+    IUpdateBlogPostInLibraryStatusRequestDto,
+    ICreateNewFollowingTagRequestDto,
+    IUpdateFollowingTagRequestDto,
+    IDeleteFollowingTagRequestDto,
+    IGetAllFollowingTagsByUsernameRequestDto,
+    IUpdateFollowingTagStatusRequestDto,
+    IGetAllBlogPostsByFollowingTagsRequestDto
 }

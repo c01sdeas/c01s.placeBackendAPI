@@ -25,16 +25,7 @@ import session from 'express-session';
 import crypto from 'crypto';
 const sessionSecretKey = crypto.randomBytes(32).toString('hex');
 
-app.use(session({
-    secret: sessionSecretKey,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { 
-        secure: false,
-        httpOnly: true,
-        sameSite: 'lax'
-    },
-}));
+
 
 // import './src/types/express-session'
 import flash from 'connect-flash';
@@ -46,8 +37,19 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(session({
+    secret: sessionSecretKey,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { 
+        secure: false,
+        httpOnly: true,
+        sameSite: 'lax'
+    },
+}));
+
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(logMiddleware);
 
 

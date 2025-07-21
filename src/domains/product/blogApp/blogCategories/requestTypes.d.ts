@@ -29,22 +29,23 @@ interface IUpdateBlogCategoryMetaRequestDto {
 }
 interface IUpdateBlogCategoryStatusRequestDto {
     id: string;
-    status: boolean;
-}
-
-interface IGetAllBlogCategoriesRequestDto {
-    page: number;
-    limit: number;
 }
 interface IGetBlogPostCategoryBySlugRequestDto {
     slug: string;
     page: number;
     limit: number;
+    requestUsername: string;
 }
 interface IGetAllBlogPostCategoriesRequestDto {
     page: number;
     limit: number;
-    categoryID: string;
+    requestUsername: string;
+}
+interface IGetAllBlogPostCategoriesByUsernameRequestDto {
+    username: string;
+    page: number;
+    limit: number;
+    requestUsername: string;
 }
 
 export type {
@@ -57,5 +58,6 @@ export type {
     IUpdateBlogCategoryStatusRequestDto,
     IGetAllBlogCategoriesRequestDto,
     IGetBlogPostCategoryBySlugRequestDto,
-    IGetAllBlogPostCategoriesRequestDto
+    IGetAllBlogPostCategoriesRequestDto,
+    IGetAllBlogPostCategoriesByUsernameRequestDto
 }

@@ -1,4 +1,6 @@
-interface IBlogCategory {
+import { Schema, Document, Types } from "mongoose";
+interface IBlogCategory extends Document {
+    _id: Types.ObjectId;
     title: string;
     slug: string;
     description: string;

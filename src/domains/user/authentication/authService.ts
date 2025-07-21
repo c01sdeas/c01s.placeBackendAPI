@@ -36,6 +36,8 @@ const userSignUpService = async (userData:IUserSignUpRequestData): Promise<Respo
 
                 await new userRolesSchemaExport({username: userData.username, roles: ['user']}).save();
 
+                await new userAuthLog({token: jwt.sign({ username: userData.username }, tokenSecretKey, { expiresIn: '1h' }), username: userData.username}).save();
+
                 await newUser.save();
                 await newUserAuthData.save();
             }
@@ -143,7 +145,7 @@ const userSignInService = async (userData:IUserSignInRequestData): Promise<Respo
             
         }
 
-        return { success: false, message: 'Internal Server Error', statusCode: 500 };
+        return { statusCode: 500, success: false, message: 'Internal Server Error' };
 
     }
 }
@@ -155,11 +157,11 @@ const getSessionUserDataService = async (username:string): Promise<ResponseWithM
         const sessionUserBaseData = await getUserBaseDataService(username);
 
         if(sessionUserBaseData.data?.status)
-        return { statusCode: 200, success: true, data: sessionUserBaseData.data };
-        return { success: false, message: 'Internal Server Error', statusCode: 500 };
-    } catch (error) {
+            return { statusCode: 200, success: true, data: sessionUserBaseData.data };
+        return { statusCode: 400, success: false, message: 'Internal Server Error' };
+    } catch (error) {       
         console.log(error);
-        return { success: false, message: 'Internal Server Error', statusCode: 500 };
+        return { statusCode: 500, success: false, message: 'Internal Server Error' };
     }
 }
 

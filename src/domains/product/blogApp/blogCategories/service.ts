@@ -1,8 +1,10 @@
 import slugify from 'slugify';
 import { blogCategorySchemaExport } from "./model.js";
 import { userSchemaExport } from '../../../user/authentication/authModel.js';
-import { ICreateNewBlogCategoryImageRequestDto, IGetAllBlogPostCategoriesRequestDto, IGetBlogPostCategoryBySlugRequestDto, INewBlogCategoryRequestDto, IUpdateBlogCategoryDescriptionRequestDto, IUpdateBlogCategoryImageRequestDto, IUpdateBlogCategoryMetaRequestDto, IUpdateBlogCategoryStatusRequestDto, IUpdateBlogCategoryTitleRequestDto } from './requestTypes.js';
+import { ICreateNewBlogCategoryImageRequestDto, IGetAllBlogPostCategoriesByUsernameRequestDto, IGetAllBlogPostCategoriesRequestDto, IGetBlogPostCategoryBySlugRequestDto, INewBlogCategoryRequestDto, IUpdateBlogCategoryDescriptionRequestDto, IUpdateBlogCategoryImageRequestDto, IUpdateBlogCategoryMetaRequestDto, IUpdateBlogCategoryStatusRequestDto, IUpdateBlogCategoryTitleRequestDto } from './requestTypes.js';
 import { IBlogCategoryListResponseDto } from './responseTypes.js';
+import { followingTagSchemaExport } from '../blogLibraries/model.js';
+import { Types } from 'mongoose';
 //blogCategoryCUD
 const createNewBlogPostCategoryImageService = async (data:ICreateNewBlogCategoryImageRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
@@ -20,6 +22,9 @@ const createNewBlogPostCategoryImageService = async (data:ICreateNewBlogCategory
 
 const createNewBlogPostCategoryService = async (contentData:INewBlogCategoryRequestDto):Promise<ResponseWithMessage<boolean>> => {
     try {
+        if (!contentData.username) {
+            return { statusCode: 400, success: false, message: 'Unauthorized.' };
+        }
         let slug = slugify.default(contentData.title, { lower: true, strict: true });
         let slugExists = await blogCategorySchemaExport.exists({ slug });
         let counter = 1;
@@ -146,10 +151,17 @@ const updateBlogPostCategoryMetaService = async (data:IUpdateBlogCategoryMetaReq
 const getAllBlogPostCategoriesService = async (data:IGetAllBlogPostCategoriesRequestDto):Promise<ResponseWithMessage<IBlogCategoryListResponseDto[]>> => {
     try {
         const { page, limit } = data;
-        const categories = await blogCategorySchemaExport.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        const categories = await blogCategorySchemaExport.find().sort({ status: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean();
 
         if (!categories || categories.length === 0) return { statusCode: 200, success: false, message: 'No categories found.' };
-        const users = await userSchemaExport.find({ username: { $in: categories.map(category => category.username) } });
+        const users = await userSchemaExport.find({ username: { $in: categories.map(category => category.username) } }).lean();
+
+        const usersMap = users.reduce((map, user) => {
+            map[user.username] = user;
+            return map;
+        }, {} as Record<string, IUser>);
+
+        const tagFollowingControl = await followingTagSchemaExport.find({ username: data.requestUsername }).lean();
 
         const formattedCategories : IBlogCategoryListResponseDto[] = categories.map(category => ({
             id: category._id.toString(),
@@ -160,15 +172,48 @@ const getAllBlogPostCategoriesService = async (data:IGetAllBlogPostCategoriesReq
             status: category.status,
             meta: category.meta,
             username: category.username,
-            userNickname: '',
+            isFollowing: tagFollowingControl.some(tag => tag.tagID.toString() === category._id.toString() && tag.status),
+            userNickname: usersMap[category.username]?.userNickname || '',
             createdAt: category.createdAt,
             updatedAt: category.updatedAt,
         }));
-        
-        formattedCategories.forEach(category => {
-            const user = users.find(user => user.username === category.username);
-            if (user) category.userNickname = user.userNickname;
-        });
+
+
+        return { statusCode: 200, success: true, message: 'Categories fetched successfully.', data: formattedCategories };
+    } catch (error) {
+        console.log(error);
+        return { error: error, statusCode: 500, message: 'Unknown error! Please contact the admin.', success: false };
+    }
+}
+
+const getAllBlogPostCategoriesByUsernameService = async (data:IGetAllBlogPostCategoriesByUsernameRequestDto):Promise<ResponseWithMessage<IBlogCategoryListResponseDto[]>> => {
+    try {
+        const { username, page, limit } = data;
+        const categories = await blogCategorySchemaExport.find({ username }).sort({ status: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean();
+        if (!categories || categories.length === 0) return { statusCode: 200, success: false, message: 'No categories found.' };
+        const users = await userSchemaExport.find({ username: { $in: categories.map(category => category.username) } }).lean();
+
+        const usersMap = users.reduce((map, user) => {
+            map[user.username] = user;
+            return map;
+        }, {} as Record<string, IUser>);
+
+        const tagFollowingControl = await followingTagSchemaExport.find({ username: data.requestUsername }).lean();
+
+        const formattedCategories : IBlogCategoryListResponseDto[] = categories.map(category => ({
+            id: category._id.toString(),
+            slug: category.slug,
+            image: category.image,
+            title: category.title,
+            description: category.description,  
+            status: category.status,
+            meta: category.meta,
+            username: category.username,
+            userNickname: usersMap[category.username]?.userNickname || '',
+            isFollowing: tagFollowingControl.some(tag => tag.tagID.toString() === category._id.toString() && tag.status),
+            createdAt: category.createdAt,
+            updatedAt: category.updatedAt,
+        }));
 
         return { statusCode: 200, success: true, message: 'Categories fetched successfully.', data: formattedCategories };
     } catch (error) {
@@ -179,11 +224,12 @@ const getAllBlogPostCategoriesService = async (data:IGetAllBlogPostCategoriesReq
 
 const getBlogPostCategoryBySlugService = async (data:IGetBlogPostCategoryBySlugRequestDto):Promise<ResponseWithMessage<IBlogCategoryListResponseDto>> => {
     try {
-        const { slug, page, limit } = data;
-        const category = await blogCategorySchemaExport.findOne({ slug }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
-        if (!category) return { statusCode: 200, success: false, message: 'Category not found.' };
-        const user = await userSchemaExport.findOne({ username: category.username });
+        const { slug } = data;
+        const category = await blogCategorySchemaExport.findOne({ slug }).lean();
+        if (!category) return { statusCode: 200, success: false, message: 'Category not foundddddd.' };
+        const user = await userSchemaExport.findOne({ username: category.username }).lean();
         if (!user) return { statusCode: 404, success: false, message: 'User not found.' };
+        const tagFollowingControl = await followingTagSchemaExport.find({ username: data.requestUsername }).lean();
         const formattedCategory : IBlogCategoryListResponseDto = {
             id: category._id.toString(),
             slug: category.slug,
@@ -194,6 +240,7 @@ const getBlogPostCategoryBySlugService = async (data:IGetBlogPostCategoryBySlugR
             meta: category.meta,
             username: category.username,
             userNickname: user.userNickname,
+            isFollowing: tagFollowingControl.some(tag => tag.tagID.toString() === category._id.toString() && tag.status),
             createdAt: category.createdAt,
             updatedAt: category.updatedAt,
         };
@@ -215,5 +262,6 @@ export {
     updateBlogPostCategoryStatusService,
     updateBlogPostCategoryMetaService,
     getAllBlogPostCategoriesService,
-    getBlogPostCategoryBySlugService
+    getBlogPostCategoryBySlugService,
+    getAllBlogPostCategoriesByUsernameService
 }

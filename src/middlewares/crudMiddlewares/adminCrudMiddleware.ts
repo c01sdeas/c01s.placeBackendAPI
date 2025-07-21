@@ -40,7 +40,7 @@ const adminCrudMiddleware = (requiredRole: string[]) => {
                             if (userRolesData && userRolesData.roles) {
                                 let permissionControl:boolean=false;
 
-                                userRolesData.roles.forEach(element => {
+                                userRolesData.roles.filter((element:string) => {
                                     if (requiredRole.includes(element)) {
                                         permissionControl = true;
                                     }
@@ -51,8 +51,8 @@ const adminCrudMiddleware = (requiredRole: string[]) => {
                                     next();
                                 }
                                 
-                                if (!permissionControl)
-                                    return res.status(401).json({ error: 'Access denied.3admin' });
+                                if (!permissionControl) return res.status(401).json({ error: 'Access denied.3admin' });
+                                next();
                                     
 
                                 
@@ -64,13 +64,10 @@ const adminCrudMiddleware = (requiredRole: string[]) => {
                                 
                             }
                             
-                        } else {
-                            return res.status(401).json({ error: 'Access denied.4admin' });
-                        }
+                        } else return res.status(401).json({ error: 'Access denied.4admin' });
 
                         
-                    } else
-                    return res.status(401).json({ error: 'Access denied.5' });
+                    } else return res.status(401).json({ error: 'Access denied.5' });
                 });
             } else
                 return res.status(401).json({ error: 'Access denied.6' });

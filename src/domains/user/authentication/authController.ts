@@ -31,6 +31,22 @@ const signInController = async (req:Request,res:Response,next:NextFunction) : Pr
         if (userAuthLogData.success==true && userAuthLogData.data) {
             if (userAuthLogData.data.username) {
                 req.session.username = userAuthLogData.data.username;
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                console.log(req.session.username);
+                
             }
             return res.status(userAuthLogData.statusCode).json(userAuthLogData);
         } else(userAuthLogData.success==false)
